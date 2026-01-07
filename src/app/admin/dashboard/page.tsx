@@ -161,14 +161,44 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDelete = async (table: string, id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
-    const { error } = await supabase.from(table).delete().eq("id", id);
-    if (error) toast.error("Gagal menghapus data");
-    else {
+  const handleDelete = (table: string, id: string, fileUrl?: string) => {
+    setDeletingItem({ table, id, fileUrl });
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingItem) return;
+    
+    setIsUploading(true);
+    try {
+      // 1. Delete from Storage if fileUrl exists
+      if (deletingItem.fileUrl) {
+        try {
+          const urlParts = deletingItem.fileUrl.split('/');
+          const fileName = urlParts[urlParts.length - 1];
+          const bucket = deletingItem.table === "news_articles" ? "news" : 
+                         deletingItem.table === "documents" ? "documents" : "gallery";
+          
+          await supabase.storage.from(bucket).remove([fileName]);
+        } catch (storageErr) {
+          console.error("Storage delete error:", storageErr);
+        }
+      }
+
+      // 2. Delete from Database
+      const { error } = await supabase.from(deletingItem.table).delete().eq("id", deletingItem.id);
+      
+      if (error) throw error;
+
       toast.success("Data berhasil dihapus");
-      logAction("Hapus Data", `Menghapus data dari tabel ${table} dengan ID ${id}`);
+      logAction("Hapus Data", `Menghapus data dari tabel ${deletingItem.table} dengan ID ${deletingItem.id}`);
       fetchAllData();
+    } catch (error: any) {
+      toast.error("Gagal menghapus data: " + error.message);
+    } finally {
+      setIsUploading(false);
+      setIsDeleteDialogOpen(false);
+      setDeletingItem(null);
     }
   };
 
