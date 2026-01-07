@@ -295,47 +295,89 @@ export default function Home() {
             </Button>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(newsItems.length > 0 ? newsItems : [
-              { title: "Rakorwil FL2MI Jatim 2025", excerpt: "Rapat koordinasi wilayah untuk memperkuat jaringan legislatif mahasiswa.", date: "15 Jan 2025", category: "Event", image_url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop" },
-              { title: "Workshop Penyusunan Legislasi Kampus", excerpt: "Pelatihan intensif untuk delegasi DPM/BPM dalam menyusun produk hukum.", date: "10 Jan 2025", category: "Pelatihan", image_url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=300&fit=crop" },
-              { title: "Deklarasi Kolaborasi Legislatif", excerpt: "Penandatanganan MoU kerjasama antar lembaga legislatif mahasiswa.", date: "5 Jan 2025", category: "Berita", image_url: "https://images.unsplash.com/photo-1559523161-0fc0d8b38a7a?w=400&h=300&fit=crop" },
-            ]).map((news, index) => (
-              <motion.article
-                key={news.id || `news-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img
-                      src={news.image_url || news.image}
-                      alt={news.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        {news.category || "Berita"}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        {news.created_at ? new Date(news.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : news.date}
-                      </span>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {(activities.length > 0 ? activities : [
+                { title: "Rakorwil FL2MI Jatim 2025", excerpt: "Rapat koordinasi wilayah untuk memperkuat jaringan legislatif mahasiswa.", date: "2025-02-15", type: "Event", location: "Grand City Convention Surabaya", time_range: "08:00 - 17:00 WIB", quota: 250, status: "Pendaftaran Dibuka", image_url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop" },
+                { title: "Workshop Penyusunan Legislasi", excerpt: "Pelatihan intensif untuk delegasi DPM/BPM dalam menyusun produk hukum.", date: "2025-02-22", type: "Event", location: "Universitas Airlangga", time_range: "09:00 - 16:00 WIB", quota: 100, status: "Pendaftaran Dibuka", image_url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=300&fit=crop" },
+                { title: "Deklarasi Kolaborasi Legislatif", excerpt: "Penandatanganan MoU kerjasama antar lembaga legislatif mahasiswa.", date: "2025-01-05", type: "Berita", image_url: "https://images.unsplash.com/photo-1559523161-0fc0d8b38a7a?w=400&h=300&fit=crop" },
+              ]).map((activity, index) => (
+                <motion.article
+                  key={activity.id || `activity-${index}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="h-full border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col">
+                    <div className="aspect-[16/9] overflow-hidden relative">
+                      <img
+                        src={activity.image_url}
+                        alt={activity.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-4 left-4">
+                        <Badge className={
+                          activity.type === 'Event' ? 'bg-blue-500' : 
+                          activity.type === 'Berita' ? 'bg-emerald-500' : 
+                          activity.type === 'Pengumuman' ? 'bg-amber-500' : 'bg-purple-500'
+                        }>
+                          {activity.type}
+                        </Badge>
+                      </div>
+                      {activity.quota && (
+                        <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold border border-white/20">
+                          {activity.quota} Peserta
+                        </div>
+                      )}
                     </div>
-                    <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                      {news.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm line-clamp-2">
-                      {news.excerpt}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.article>
-            ))}
-          </div>
+                    <CardContent className="p-6 flex-1 flex flex-col">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 font-medium">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(activity.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {activity.status && (
+                          <>
+                            <span className="mx-1">•</span>
+                            <span className="text-primary font-bold">{activity.status}</span>
+                          </>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                        {activity.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
+                        {activity.excerpt || activity.description}
+                      </p>
+                      
+                      {activity.type === 'Event' && (
+                        <div className="mt-auto space-y-2 pt-4 border-t border-border/50">
+                          {activity.location && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <MapPin className="w-3 h-3 text-primary" />
+                              <span className="truncate">{activity.location}</span>
+                            </div>
+                          )}
+                          {activity.time_range && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3 text-primary" />
+                              <span>{activity.time_range}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="mt-6">
+                        <Button className="w-full group/btn" variant={activity.type === 'Event' ? 'default' : 'outline'} asChild>
+                          <Link href={activity.registration_link || "/berita"}>
+                            {activity.type === 'Event' ? 'Daftar Sekarang' : 'Selengkapnya'}
+                            <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.article>
+              ))}
+            </div>
         </div>
       </section>
 
