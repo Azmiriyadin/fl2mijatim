@@ -568,7 +568,7 @@ export default function AdminDashboard() {
                                 <td className="px-6 py-4"><Badge variant="outline">{doc.type}</Badge></td>
                                 <td className="px-6 py-4 text-right">
                                   <div className="flex items-center justify-end gap-2">
-                                    <Button size="icon" variant="ghost" asChild><a href={doc.file_url} target="_blank"><Eye className="w-4 h-4" /></a></Button>
+                                    <Button size="icon" variant="ghost" onClick={() => handleViewFile(doc.file_url)}><Eye className="w-4 h-4" /></Button>
                                     <Button size="icon" variant="ghost" onClick={() => openEditDialog(doc, "docs")}><Edit className="w-4 h-4" /></Button>
                                     <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete("documents", doc.id, doc.file_url)}><Trash2 className="w-4 h-4" /></Button>
                                   </div>
