@@ -211,8 +211,9 @@ export default function AdminDashboard() {
 
     setIsUploading(true);
     try {
-      // Remove contentType from data before sending to DB
-      const { contentType, ...dbData } = formData;
+      // Clean up data before sending to DB
+      const { contentType, id, created_at, ...cleanData } = formData;
+      const dbData: any = { ...cleanData };
       
       // Handle File Upload if selected
       if (selectedFile) {
