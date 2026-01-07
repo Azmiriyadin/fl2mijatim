@@ -31,7 +31,7 @@ export default function Home() {
   const [siteSettings, setSiteSettings] = useState<any>({});
   const [stats, setStats] = useState<any[]>([]);
   const [features, setFeatures] = useState<any[]>([]);
-  const [newsItems, setNewsItems] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,8 +49,8 @@ export default function Home() {
       const { data: featuresData } = await supabase.from('home_features').select('*').order('display_order');
       if (featuresData) setFeatures(featuresData);
 
-      const { data: newsData } = await supabase.from('news_articles').select('*').order('created_at', { ascending: false }).limit(3);
-      if (newsData) setNewsItems(newsData);
+      const { data: activitiesData } = await supabase.from('events').select('*').order('date', { ascending: false }).limit(8);
+      if (activitiesData) setActivities(activitiesData);
       
       setLoading(false);
     };
