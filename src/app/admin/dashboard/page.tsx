@@ -20,7 +20,12 @@ import {
   Download,
   Eye,
   Upload,
-  Loader2
+  Loader2,
+  Calendar,
+  Megaphone,
+  MapPin,
+  Clock,
+  Ticket
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
