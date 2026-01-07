@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Shield, User, LogOut } from "lucide-react";
+import { Menu, X, ChevronDown, Shield, User, LogOut as LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
