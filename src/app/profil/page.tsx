@@ -371,30 +371,41 @@ export default function ProfilPage() {
             </h2>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {teamMembers.map((member, index) => (
-              <motion.div
-                key={member.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                  <div className="aspect-square overflow-hidden">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <CardContent className="p-6 text-center">
-                    <h3 className="text-lg font-semibold mb-1">{member.name}</h3>
-                    <p className="text-primary font-medium text-sm mb-1">{member.role}</p>
-                    <p className="text-muted-foreground text-xs">{member.university}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+          <div className="space-y-20">
+            {teamCategories.map((category, catIndex) => (
+              <div key={category.title}>
+                <motion.h3
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="text-2xl font-bold mb-8 text-primary border-l-4 border-primary pl-4"
+                >
+                  {category.title}
+                </motion.h3>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {category.members.map((member, index) => (
+                    <motion.div
+                      key={member.name}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                        <div className="aspect-square overflow-hidden bg-muted flex items-center justify-center relative">
+                          <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300" />
+                          <User className="w-20 h-20 text-muted-foreground/40 group-hover:scale-110 transition-transform duration-500" />
+                        </div>
+                        <CardContent className="p-6 text-center">
+                          <h3 className="text-lg font-semibold mb-1 line-clamp-1">{member.name}</h3>
+                          <p className="text-primary font-medium text-sm mb-1">{member.role}</p>
+                          <p className="text-muted-foreground text-xs line-clamp-2">{member.university}</p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
