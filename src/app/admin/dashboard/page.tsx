@@ -12,7 +12,13 @@ import {
   Bell,
   Search,
   MoreVertical,
-  Plus
+  Plus,
+  Trash2,
+  Edit,
+  Image as ImageIcon,
+  ExternalLink,
+  Download,
+  Eye
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
@@ -29,51 +35,156 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeTab, setActiveTab] = useState("overview");
   const [users, setUsers] = useState<any[]>([]);
+  const [news, setNews] = useState<any[]>([]);
+  const [docs, setDocs] = useState<any[]>([]);
+  const [gallery, setGallery] = useState<any[]>([]);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [universities, setUniversities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Form States
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [formData, setFormData] = useState<any>({});
+
   useEffect(() => {
-    fetchUsers();
+    fetchAllData();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchAllData = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .order("created_at", { ascending: false });
-    
-    if (error) {
-      toast.error("Gagal mengambil data pengguna");
-    } else {
-      setUsers(data || []);
-    }
+    await Promise.all([
+      fetchUsers(),
+      fetchNews(),
+      fetchDocs(),
+      fetchGallery(),
+      fetchLogs(),
+      fetchUniversities()
+    ]);
     setLoading(false);
   };
 
-  const handleApprove = async (userId: string) => {
-    const { error } = await supabase
-      .from("users")
-      .update({ is_verified: true })
-      .eq("id", userId);
+  const fetchUsers = async () => {
+    const { data } = await supabase.from("users").select("*").order("created_at", { ascending: false });
+    setUsers(data || []);
+  };
 
-    if (error) {
-      toast.error("Gagal melakukan verifikasi");
-    } else {
-      toast.success("Pengguna berhasil diverifikasi");
+  const fetchNews = async () => {
+    const { data } = await supabase.from("news_articles").select("*").order("created_at", { ascending: false });
+    setNews(data || []);
+  };
+
+  const fetchDocs = async () => {
+    const { data } = await supabase.from("documents").select("*").order("created_at", { ascending: false });
+    setDocs(data || []);
+  };
+
+  const fetchGallery = async () => {
+    const { data } = await supabase.from("gallery").select("*").order("created_at", { ascending: false });
+    setGallery(data || []);
+  };
+
+  const fetchLogs = async () => {
+    const { data } = await supabase.from("system_logs").select("*").order("created_at", { ascending: false }).limit(20);
+    setLogs(data || []);
+  };
+
+  const fetchUniversities = async () => {
+    const { data } = await supabase.from("universities").select("*").order("name");
+    setUniversities(data || []);
+  };
+
+  const logAction = async (action: string, details: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("system_logs").insert({
+      action,
+      user_email: user?.email || "system",
+      details
+    });
+    fetchLogs();
+  };
+
+  // CRUD Handlers
+  const handleApprove = async (userId: string) => {
+    const { error } = await supabase.from("users").update({ is_verified: true }).eq("id", userId);
+    if (error) toast.error("Gagal memverifikasi user");
+    else {
+      toast.success("User berhasil diverifikasi");
+      logAction("Verifikasi User", `User ID: ${userId} telah diverifikasi`);
       fetchUsers();
     }
   };
 
-  const handleReject = async (userId: string) => {
-    // For now, rejection just marks as unverified or could delete
-    toast.info("Fitur penolakan sedang dikembangkan");
+  const handleDelete = async (table: string, id: string) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+    const { error } = await supabase.from(table).delete().eq("id", id);
+    if (error) toast.error("Gagal menghapus data");
+    else {
+      toast.success("Data berhasil dihapus");
+      logAction("Hapus Data", `Menghapus data dari tabel ${table} dengan ID ${id}`);
+      fetchAllData();
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const table = activeTab === "users" ? "users" : 
+                  activeTab === "content" ? (formData.contentType === "news" ? "news_articles" : formData.contentType === "docs" ? "documents" : "gallery") : "";
+    
+    if (!table) return;
+
+    // Remove contentType from data before sending to DB
+    const { contentType, ...dbData } = formData;
+    
+    let res;
+    if (editingItem) {
+      res = await supabase.from(table).update(dbData).eq("id", editingItem.id);
+    } else {
+      res = await supabase.from(table).insert(dbData);
+    }
+
+    if (res.error) {
+      toast.error("Gagal menyimpan data: " + res.error.message);
+    } else {
+      toast.success("Data berhasil disimpan");
+      logAction(editingItem ? "Update Data" : "Tambah Data", `Tabel: ${table}`);
+      setIsDialogOpen(false);
+      setEditingItem(null);
+      setFormData({});
+      fetchAllData();
+    }
+  };
+
+  const openAddDialog = (type: string) => {
+    setEditingItem(null);
+    setFormData({ contentType: type });
+    setIsDialogOpen(true);
+  };
+
+  const openEditDialog = (item: any, type: string) => {
+    setEditingItem(item);
+    setFormData({ ...item, contentType: type });
+    setIsDialogOpen(true);
   };
 
   const handleLogout = async () => {
@@ -82,7 +193,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
       <aside className="w-64 bg-card border-r hidden md:flex flex-col">
         <div className="p-6">
@@ -163,7 +274,6 @@ export default function AdminDashboard() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer border-2 border-primary/10">
-                  <AvatarImage src="" />
                   <AvatarFallback className="bg-primary/5 text-primary">AD</AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -181,241 +291,19 @@ export default function AdminDashboard() {
 
         <div className="p-8">
           <AnimatePresence mode="wait">
-            {activeTab === "users" && (
-              <motion.div
-                key="users"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-6"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-2xl font-bold">User Management Queue</h1>
-                    <p className="text-muted-foreground">Verifikasi pendaftar baru dari universitas.</p>
-                  </div>
-                  <Button className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Tambah User
-                  </Button>
-                </div>
-
-                <div className="grid gap-6">
-                  <Card>
-                    <CardHeader className="pb-0">
-                      <div className="flex items-center justify-between">
-                        <Tabs defaultValue="pending" className="w-[400px]">
-                          <TabsList>
-                            <TabsTrigger value="pending">Pending</TabsTrigger>
-                            <TabsTrigger value="verified">Verified</TabsTrigger>
-                            <TabsTrigger value="all">Semua</TabsTrigger>
-                          </TabsList>
-                        </Tabs>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                      <div className="relative overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                          <thead className="text-xs uppercase bg-muted/50">
-                            <tr>
-                              <th className="px-6 py-4 font-medium">Pengguna</th>
-                              <th className="px-6 py-4 font-medium">Asal Kampus</th>
-                              <th className="px-6 py-4 font-medium">Tanggal Daftar</th>
-                              <th className="px-6 py-4 font-medium">Status</th>
-                              <th className="px-6 py-4 font-medium text-right">Aksi</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y">
-                            {users.length === 0 ? (
-                              <tr>
-                                <td colSpan={5} className="px-6 py-10 text-center text-muted-foreground italic">
-                                  {loading ? "Memuat data..." : "Belum ada pendaftar baru."}
-                                </td>
-                              </tr>
-                            ) : (
-                              users.map((user) => (
-                                <tr key={user.id} className="hover:bg-muted/30 transition-colors">
-                                  <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                      <Avatar className="h-8 w-8">
-                                        <AvatarFallback className="text-[10px]">{user.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                      </Avatar>
-                                      <div>
-                                        <div className="font-medium">{user.name}</div>
-                                        <div className="text-xs text-muted-foreground">{user.email}</div>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    <Badge variant="outline" className="font-normal">
-                                      {user.campus_origin || "Belum diisi"}
-                                    </Badge>
-                                  </td>
-                                  <td className="px-6 py-4 text-muted-foreground">
-                                    {new Date(user.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    {user.is_verified ? (
-                                      <Badge className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-emerald-500/20">Verified</Badge>
-                                    ) : (
-                                      <Badge variant="secondary" className="bg-amber-500/10 text-amber-600 border-amber-500/20">Pending</Badge>
-                                    )}
-                                  </td>
-                                  <td className="px-6 py-4 text-right">
-                                    {!user.is_verified ? (
-                                      <div className="flex items-center justify-end gap-2">
-                                        <Button 
-                                          size="sm" 
-                                          variant="ghost" 
-                                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                          onClick={() => handleApprove(user.id)}
-                                        >
-                                          <CheckCircle className="w-4 h-4 mr-1" />
-                                          Approve
-                                        </Button>
-                                        <Button 
-                                          size="sm" 
-                                          variant="ghost" 
-                                          className="text-destructive hover:bg-destructive/10"
-                                          onClick={() => handleReject(user.id)}
-                                        >
-                                          <XCircle className="w-4 h-4 mr-1" />
-                                          Reject
-                                        </Button>
-                                      </div>
-                                    ) : (
-                                      <Button size="sm" variant="ghost">
-                                        <MoreVertical className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </td>
-                                </tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === "content" && (
-              <motion.div
-                key="content"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-              >
-                <div>
-                  <h1 className="text-2xl font-bold">Content Manager</h1>
-                  <p className="text-muted-foreground">Kelola berita, foto galeri, dan dokumen legislasi.</p>
-                </div>
-
-                <Tabs defaultValue="news" className="space-y-6">
-                  <TabsList className="bg-muted p-1 rounded-xl">
-                    <TabsTrigger value="news" className="rounded-lg px-6">Berita</TabsTrigger>
-                    <TabsTrigger value="docs" className="rounded-lg px-6">Legislasi (PDF)</TabsTrigger>
-                    <TabsTrigger value="gallery" className="rounded-lg px-6">Galeri</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="news" className="space-y-4">
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <Card className="border-dashed flex flex-col items-center justify-center p-12 text-center hover:bg-muted/30 transition-colors cursor-pointer group">
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                          <Plus className="w-6 h-6 text-primary" />
-                        </div>
-                        <h3 className="font-semibold">Tambah Berita</h3>
-                        <p className="text-sm text-muted-foreground mt-2">Publikasikan artikel atau pengumuman baru.</p>
-                      </Card>
-                      {/* Placeholders for existing news */}
-                      {[1, 2].map(i => (
-                        <Card key={i} className="overflow-hidden group">
-                          <div className="aspect-video bg-muted relative">
-                             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                               Thumbnail
-                             </div>
-                          </div>
-                          <CardContent className="p-4">
-                            <h3 className="font-semibold line-clamp-1">Judul Berita Placeholder {i}</h3>
-                            <p className="text-xs text-muted-foreground mt-1">Dipublikasikan 2 hari yang lalu</p>
-                            <div className="mt-4 flex gap-2">
-                              <Button variant="outline" size="sm" className="flex-1">Edit</Button>
-                              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">Hapus</Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="docs">
-                     <Card>
-                       <CardContent className="p-12 text-center text-muted-foreground italic">
-                          Fitur manajemen dokumen legislasi sedang dikonfigurasi.
-                       </CardContent>
-                     </Card>
-                  </TabsContent>
-                </Tabs>
-              </motion.div>
-            )}
-
-            {activeTab === "logs" && (
-              <motion.div
-                key="logs"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-              >
-                <div>
-                  <h1 className="text-2xl font-bold">System Logs</h1>
-                  <p className="text-muted-foreground">Audit internal aktivitas organisasi.</p>
-                </div>
-
-                <Card>
-                  <CardContent className="p-0">
-                    <div className="divide-y">
-                      {[
-                        { action: "Login Admin", user: "admin.jatim@fl2mi.or.id", time: "Sekarang", icon: <CheckCircle className="w-4 h-4 text-emerald-500" /> },
-                        { action: "Update Konten Hero", user: "admin.jatim@fl2mi.or.id", time: "2 jam yang lalu", icon: <FileText className="w-4 h-4 text-blue-500" /> },
-                        { action: "Verifikasi User: Ahmad", user: "admin.jatim@fl2mi.or.id", time: "5 jam yang lalu", icon: <Users className="w-4 h-4 text-purple-500" /> },
-                      ].map((log, i) => (
-                        <div key={i} className="flex items-center gap-4 p-4 hover:bg-muted/10">
-                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                            {log.icon}
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{log.action}</div>
-                            <div className="text-xs text-muted-foreground">Oleh {log.user}</div>
-                          </div>
-                          <div className="text-xs text-muted-foreground">{log.time}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
+            {/* OVERVIEW TAB */}
             {activeTab === "overview" && (
-              <motion.div
-                key="overview"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-8"
-              >
+              <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                 <div>
                   <h1 className="text-2xl font-bold">Dashboard Overview</h1>
                   <p className="text-muted-foreground">Statistik real-time platform FL2MI Jatim.</p>
                 </div>
-
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
                     { label: "Total User", value: users.length, icon: <Users />, color: "bg-blue-500" },
                     { label: "Pending Verif", value: users.filter(u => !u.is_verified).length, icon: <Bell />, color: "bg-amber-500" },
-                    { label: "Dokumen PDF", value: "24", icon: <FileText />, color: "bg-emerald-500" },
-                    { label: "Kunjungan Hari Ini", value: "152", icon: <LayoutDashboard />, color: "bg-purple-500" },
+                    { label: "Dokumen PDF", value: docs.length, icon: <FileText />, color: "bg-emerald-500" },
+                    { label: "Berita Aktif", value: news.length, icon: <LayoutDashboard />, color: "bg-purple-500" },
                   ].map((stat, i) => (
                     <Card key={i}>
                       <CardContent className="p-6">
@@ -432,29 +320,32 @@ export default function AdminDashboard() {
                     </Card>
                   ))}
                 </div>
-
                 <div className="grid lg:grid-cols-2 gap-8">
                    <Card>
-                     <CardHeader>
-                       <CardTitle>Aktivitas Pendaftaran</CardTitle>
-                       <CardDescription>Tren pendaftar baru dalam 30 hari terakhir.</CardDescription>
-                     </CardHeader>
-                     <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground italic">
-                        [ Grafik Tren Pendaftaran ]
+                     <CardHeader><CardTitle>Aktivitas Pendaftaran</CardTitle></CardHeader>
+                     <CardContent className="h-[300px] flex flex-col justify-end space-y-4">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl font-bold">{users.filter(u => new Date(u.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</span>
+                          <span className="text-sm text-muted-foreground">User baru minggu ini</span>
+                        </div>
+                        <div className="w-full h-32 bg-muted/50 rounded-lg relative overflow-hidden">
+                           <div className="absolute inset-0 flex items-end px-4 gap-2">
+                              {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
+                                <div key={i} className="flex-1 bg-primary/20 rounded-t-sm" style={{ height: `${h}%` }} />
+                              ))}
+                           </div>
+                        </div>
                      </CardContent>
                    </Card>
                    <Card>
-                     <CardHeader>
-                       <CardTitle>Konten Terpopuler</CardTitle>
-                       <CardDescription>Dokumen legislasi yang paling banyak diunduh.</CardDescription>
-                     </CardHeader>
+                     <CardHeader><CardTitle>Konten Terpopuler</CardTitle></CardHeader>
                      <CardContent>
                         <div className="space-y-4">
-                           {[1, 2, 3].map(i => (
+                           {docs.slice(0, 5).map((doc, i) => (
                              <div key={i} className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">{i}</div>
-                                <div className="flex-1 text-sm font-medium">UU KM Universitas Brawijaya 2024</div>
-                                <div className="text-xs text-muted-foreground">120 Downloads</div>
+                                <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">{i+1}</div>
+                                <div className="flex-1 text-sm font-medium truncate">{doc.title}</div>
+                                <div className="text-xs text-muted-foreground">{doc.year}</div>
                              </div>
                            ))}
                         </div>
@@ -463,9 +354,319 @@ export default function AdminDashboard() {
                 </div>
               </motion.div>
             )}
+
+            {/* USERS TAB */}
+            {activeTab === "users" && (
+              <motion.div key="users" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-2xl font-bold">User Management</h1>
+                    <p className="text-muted-foreground">Verifikasi pendaftar baru dari universitas.</p>
+                  </div>
+                  <Button className="gap-2" onClick={() => openAddDialog("users")}>
+                    <Plus className="w-4 h-4" /> Tambah User
+                  </Button>
+                </div>
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="relative overflow-x-auto">
+                      <table className="w-full text-sm text-left">
+                        <thead className="text-xs uppercase bg-muted/50 border-b">
+                          <tr>
+                            <th className="px-6 py-4">Pengguna</th>
+                            <th className="px-6 py-4">Kampus</th>
+                            <th className="px-6 py-4">Role</th>
+                            <th className="px-6 py-4">Status</th>
+                            <th className="px-6 py-4 text-right">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {users.map((user) => (
+                            <tr key={user.id} className="hover:bg-muted/30 transition-colors">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarFallback className="text-[10px]">{user.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="font-medium">{user.name}</div>
+                                    <div className="text-xs text-muted-foreground">{user.email}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4"><Badge variant="outline">{user.campus_origin}</Badge></td>
+                              <td className="px-6 py-4 font-mono text-xs">{user.role}</td>
+                              <td className="px-6 py-4">
+                                {user.is_verified ? (
+                                  <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Verified</Badge>
+                                ) : (
+                                  <Badge variant="secondary" className="bg-amber-500/10 text-amber-600 border-amber-500/20">Pending</Badge>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  {!user.is_verified && (
+                                    <Button size="icon" variant="ghost" className="text-emerald-600 hover:bg-emerald-50" onClick={() => handleApprove(user.id)}><CheckCircle className="w-4 h-4" /></Button>
+                                  )}
+                                  <Button size="icon" variant="ghost" onClick={() => openEditDialog(user, "users")}><Edit className="w-4 h-4" /></Button>
+                                  <Button size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete("users", user.id)}><Trash2 className="w-4 h-4" /></Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* CONTENT TAB */}
+            {activeTab === "content" && (
+              <motion.div key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-2xl font-bold">Content Manager</h1>
+                    <p className="text-muted-foreground">Kelola berita, dokumen, dan galeri.</p>
+                  </div>
+                </div>
+
+                <Tabs defaultValue="news" className="space-y-6">
+                  <TabsList className="bg-muted p-1 rounded-xl">
+                    <TabsTrigger value="news" className="rounded-lg px-6">Berita</TabsTrigger>
+                    <TabsTrigger value="docs" className="rounded-lg px-6">Legislasi (PDF)</TabsTrigger>
+                    <TabsTrigger value="gallery" className="rounded-lg px-6">Galeri</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="news" className="space-y-4">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <Card className="border-dashed flex flex-col items-center justify-center p-8 text-center hover:bg-muted/30 transition-colors cursor-pointer group" onClick={() => openAddDialog("news")}>
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><Plus className="w-5 h-5 text-primary" /></div>
+                        <h3 className="font-semibold">Tambah Berita</h3>
+                      </Card>
+                      {news.map(item => (
+                        <Card key={item.id} className="overflow-hidden group flex flex-col">
+                          <div className="aspect-video bg-muted relative">
+                            {item.image_url ? <img src={item.image_url} className="w-full h-full object-cover" /> : <div className="absolute inset-0 flex items-center justify-center text-muted-foreground"><ImageIcon className="w-8 h-8 opacity-20" /></div>}
+                          </div>
+                          <CardContent className="p-4 flex-1 flex flex-col">
+                            <h3 className="font-semibold line-clamp-2">{item.title}</h3>
+                            <div className="mt-auto pt-4 flex gap-2">
+                              <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(item, "news")}><Edit className="w-3 h-3 mr-1" /> Edit</Button>
+                              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete("news_articles", item.id)}><Trash2 className="w-3 h-3" /></Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="docs">
+                    <div className="flex justify-end mb-4">
+                      <Button className="gap-2" onClick={() => openAddDialog("docs")}><Plus className="w-4 h-4" /> Tambah Dokumen</Button>
+                    </div>
+                    <Card>
+                      <CardContent className="p-0">
+                        <table className="w-full text-sm text-left">
+                          <thead className="bg-muted/50 border-b">
+                            <tr>
+                              <th className="px-6 py-4">Judul</th>
+                              <th className="px-6 py-4">Tahun</th>
+                              <th className="px-6 py-4">Tipe</th>
+                              <th className="px-6 py-4 text-right">Aksi</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y">
+                            {docs.map(doc => (
+                              <tr key={doc.id} className="hover:bg-muted/30">
+                                <td className="px-6 py-4 font-medium">{doc.title}</td>
+                                <td className="px-6 py-4">{doc.year}</td>
+                                <td className="px-6 py-4"><Badge variant="outline">{doc.type}</Badge></td>
+                                <td className="px-6 py-4 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <Button size="icon" variant="ghost" asChild><a href={doc.file_url} target="_blank"><Eye className="w-4 h-4" /></a></Button>
+                                    <Button size="icon" variant="ghost" onClick={() => openEditDialog(doc, "docs")}><Edit className="w-4 h-4" /></Button>
+                                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete("documents", doc.id)}><Trash2 className="w-4 h-4" /></Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="gallery" className="space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                       <Card className="border-dashed flex flex-col items-center justify-center aspect-square cursor-pointer hover:bg-muted/30" onClick={() => openAddDialog("gallery")}>
+                          <Plus className="w-6 h-6 text-primary mb-2" />
+                          <span className="text-xs font-medium">Tambah Foto</span>
+                       </Card>
+                       {gallery.map(item => (
+                         <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden group">
+                           <img src={item.image_url} className="w-full h-full object-cover" />
+                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                             <Button size="icon" variant="secondary" className="h-8 w-8" onClick={() => openEditDialog(item, "gallery")}><Edit className="w-4 h-4" /></Button>
+                             <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDelete("gallery", item.id)}><Trash2 className="w-4 h-4" /></Button>
+                           </div>
+                         </div>
+                       ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </motion.div>
+            )}
+
+            {/* LOGS TAB */}
+            {activeTab === "logs" && (
+              <motion.div key="logs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div>
+                  <h1 className="text-2xl font-bold">System Logs</h1>
+                  <p className="text-muted-foreground">Audit internal aktivitas organisasi.</p>
+                </div>
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="divide-y">
+                      {logs.map((log, i) => (
+                        <div key={i} className="flex items-center gap-4 p-4 hover:bg-muted/10">
+                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                            {log.action.includes("Login") ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <FileText className="w-4 h-4 text-blue-500" />}
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{log.action}</div>
+                            <div className="text-xs text-muted-foreground">{log.details} - Oleh {log.user_email}</div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString('id-ID')}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </main>
+
+      {/* CRUD DIALOG */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingItem ? 'Edit' : 'Tambah'} {formData.contentType === 'news' ? 'Berita' : formData.contentType === 'docs' ? 'Dokumen' : formData.contentType === 'users' ? 'User' : 'Galeri'}</DialogTitle>
+            <DialogDescription>Pastikan data yang Anda masukkan sudah benar.</DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleSave} className="space-y-4 py-4">
+            {formData.contentType === 'users' && (
+              <>
+                <div className="space-y-2">
+                  <Label>Nama Lengkap</Label>
+                  <Input value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input type="email" value={formData.email || ''} onChange={e => setFormData({...formData, email: e.target.value})} required disabled={!!editingItem} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Asal Kampus</Label>
+                  <Select value={formData.campus_origin || ''} onValueChange={val => setFormData({...formData, campus_origin: val})}>
+                    <SelectTrigger><SelectValue placeholder="Pilih Kampus" /></SelectTrigger>
+                    <SelectContent>
+                      {universities.map(u => <SelectItem key={u.id} value={u.name}>{u.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Role</Label>
+                  <Select value={formData.role || 'USER'} onValueChange={val => setFormData({...formData, role: val})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USER">User Member</SelectItem>
+                      <SelectItem value="ADMIN">Super Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
+            {formData.contentType === 'news' && (
+              <>
+                <div className="space-y-2">
+                  <Label>Judul Berita</Label>
+                  <Input value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Kategori</Label>
+                  <Input value={formData.category || ''} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Nasional, Regional, Event..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>URL Gambar</Label>
+                  <Input value={formData.image_url || ''} onChange={e => setFormData({...formData, image_url: e.target.value})} placeholder="https://..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Konten Berita</Label>
+                  <Textarea className="h-32" value={formData.content || ''} onChange={e => setFormData({...formData, content: e.target.value})} required />
+                </div>
+              </>
+            )}
+
+            {formData.contentType === 'docs' && (
+              <>
+                <div className="space-y-2">
+                  <Label>Judul Dokumen</Label>
+                  <Input value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} required />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Tahun</Label>
+                    <Input type="number" value={formData.year || new Date().getFullYear()} onChange={e => setFormData({...formData, year: parseInt(e.target.value)})} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Tipe</Label>
+                    <Select value={formData.type || ''} onValueChange={val => setFormData({...formData, type: val})}>
+                      <SelectTrigger><SelectValue placeholder="Pilih Tipe" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="UU KM">UU KM</SelectItem>
+                        <SelectItem value="AD/ART">AD/ART</SelectItem>
+                        <SelectItem value="SOP">SOP</SelectItem>
+                        <SelectItem value="PERPU">PERPU</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>URL File (PDF)</Label>
+                  <Input value={formData.file_url || ''} onChange={e => setFormData({...formData, file_url: e.target.value})} required placeholder="https://..." />
+                </div>
+              </>
+            )}
+
+            {formData.contentType === 'gallery' && (
+              <>
+                <div className="space-y-2">
+                  <Label>Judul Foto</Label>
+                  <Input value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} required />
+                </div>
+                <div className="space-y-2">
+                  <Label>URL Gambar</Label>
+                  <Input value={formData.image_url || ''} onChange={e => setFormData({...formData, image_url: e.target.value})} required placeholder="https://..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Kategori</Label>
+                  <Input value={formData.category || ''} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Gathering, Raker, Event..." />
+                </div>
+              </>
+            )}
+
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Batal</Button>
+              <Button type="submit">Simpan Perubahan</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
