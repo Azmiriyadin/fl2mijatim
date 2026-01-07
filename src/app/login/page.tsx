@@ -29,13 +29,23 @@ export default function LoginPage() {
       password,
     });
 
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
-      router.push("/");
-    }
-  };
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      } else {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('email', email)
+          .single();
+
+        if (profile?.role === 'superadmin') {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
+      }
+    };
 
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
