@@ -17,7 +17,6 @@ const navLinks = [
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
-import { LogOut, User, Shield } from "lucide-react";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
