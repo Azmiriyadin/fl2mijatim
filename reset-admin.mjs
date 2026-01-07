@@ -19,42 +19,19 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 async function resetAdmin() {
   const email = 'admin.jatim@fl2mi.or.id'
   const password = 'KorwilJatim2026!Secure'
+  const userId = 'dbf30764-7812-4bc9-bbd3-4190332f2430'
 
-  console.log(`Checking user ${email}...`)
+  console.log(`Targeting user ${email} (${userId})...`)
   
-  const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
-  
-  if (listError) {
-    console.error('Error listing users:', listError)
-    return
-  }
+  const { data: { user }, error: updateError } = await supabase.auth.admin.updateUserById(
+    userId,
+    { password: password, email_confirm: true }
+  )
 
-  const user = users.find(u => u.email === email)
-
-  if (user) {
-    console.log('User exists, updating password...')
-    const { error: updateError } = await supabase.auth.admin.updateUserById(
-      user.id,
-      { password: password, email_confirm: true }
-    )
-    if (updateError) {
-      console.error('Error updating password:', updateError)
-    } else {
-      console.log('Password updated successfully')
-    }
+  if (updateError) {
+    console.error('Error updating password:', updateError)
   } else {
-    console.log('User not found, creating user...')
-    const { error: createError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { role: 'SUPER_ADMIN' }
-    })
-    if (createError) {
-      console.error('Error creating user:', createError)
-    } else {
-      console.log('User created successfully')
-    }
+    console.log('Password updated successfully for user:', user?.email)
   }
 }
 
