@@ -33,11 +33,17 @@ export function Navbar() {
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mt-4 mx-auto max-w-6xl">
           <nav className="flex items-center justify-between h-16 px-6 bg-white/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg shadow-primary/5">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">F</span>
-              </div>
-              <div className="hidden sm:block">
+              <Link href="/" className="flex items-center gap-3">
+                <div className="relative w-10 h-10 overflow-hidden">
+                  <Image
+                    src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/b8599709-4ea0-4a5f-b30b-d57061bedd8b/2-1767764401652.png?width=8000&height=8000&resize=contain"
+                    alt="FL2MI Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <div className="hidden sm:block">
+
                 <span className="font-bold text-lg tracking-tight">FL2MI</span>
                 <span className="text-muted-foreground text-sm block -mt-1">Korwil Jatim</span>
               </div>
