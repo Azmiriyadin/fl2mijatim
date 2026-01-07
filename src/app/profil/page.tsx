@@ -17,30 +17,181 @@ import {
   Lightbulb,
 } from "lucide-react";
 
-const teamMembers = [
+const teamCategories = [
   {
-    name: "Ahmad Fauzi",
-    role: "Koordinator Wilayah",
-    university: "Universitas Airlangga",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop",
+    title: "PENGURUS INTI",
+    members: [
+      {
+        name: "Achmad Arfan Hanafi",
+        role: "Koordinator Wilayah",
+        university: "Universitas Muhammadiyah Sidoarjo",
+      },
+      {
+        name: "Sirojul Hikam",
+        role: "Sekretaris Jenderal",
+        university: "Universitas Nahdlatul Ulama Pasuruan",
+      },
+      {
+        name: "M Azmi Zamzami Riyadin",
+        role: "Sekretaris Umum",
+        university: "Unwaha Jombang",
+      },
+      {
+        name: "Nofita Tamher",
+        role: "Bendahara Umum",
+        university: "Universitas Merdeka Malang",
+      },
+    ],
   },
   {
-    name: "Siti Rahmawati",
-    role: "Wakil Koordinator",
-    university: "Institut Teknologi Sepuluh Nopember",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop",
+    title: "KOMISI I (Hukum dan Legislasi)",
+    members: [
+      {
+        name: "Nicolas Kusuma Ananda",
+        role: "Ketua Komisi",
+        university: "Universitas Trunojoyo Madura",
+      },
+      {
+        name: "Dyah Ayu Razeka Asmarasanti",
+        role: "Sekretaris Komisi",
+        university: "Politeknik Negeri Jember",
+      },
+      {
+        name: "M. Choirul Anwar",
+        role: "Anggota",
+        university: "IAI Syarifuddin Lumajang",
+      },
+      {
+        name: "M Fajrul Falah",
+        role: "Anggota",
+        university: "Universitas Hasyim Asy'ari Tebuireng Jombang",
+      },
+    ],
   },
   {
-    name: "Muhammad Rizky",
-    role: "Sekretaris",
-    university: "Universitas Brawijaya",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+    title: "KOMISI II (Kelembagaan)",
+    members: [
+      {
+        name: "A. Zaid Tsabit A.B",
+        role: "Ketua Komisi",
+        university: "Unwaha Jombang",
+      },
+      {
+        name: "Mirza Aditama Firmansyah",
+        role: "Sekretaris Komisi",
+        university: "Politeknik Negeri Jember",
+      },
+      {
+        name: "Sekar Putri Hapsari",
+        role: "Anggota",
+        university: "Universitas 17 Agustus 1945 Banyuwangi",
+      },
+      {
+        name: "Muhammad Arif",
+        role: "Anggota",
+        university: "Universitas Muhammadiyah Malang",
+      },
+      {
+        name: "Monica Rahayu",
+        role: "Anggota",
+        university: "Universitas Islam Malang",
+      },
+      {
+        name: "Muhammad Adam",
+        role: "Anggota",
+        university: "Universitas Trunojoyo Madura",
+      },
+    ],
   },
   {
-    name: "Dewi Puspita",
-    role: "Bendahara",
-    university: "Universitas Negeri Surabaya",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+    title: "KOMISI III (Hubungan Parlemen dan Pembinaan)",
+    members: [
+      {
+        name: "Arif Rahman",
+        role: "Ketua Komisi",
+        university: "Universitas Trunojoyo Madura",
+      },
+      {
+        name: "Revalino Ardyansyah",
+        role: "Sekretaris Komisi",
+        university: "Universitas 17 Agustus 1945 Surabaya",
+      },
+      {
+        name: "Wildan Pradana",
+        role: "Anggota",
+        university: "Universitas Islam Jember",
+      },
+      {
+        name: "Zayyinul Mukminin",
+        role: "Anggota",
+        university: "Universitas Annuqayah Sumenep",
+      },
+      {
+        name: "Fillah Inzuly Vilthon",
+        role: "Anggota",
+        university: "UM Lamongan",
+      },
+      {
+        name: "Muhammad Syarif Hidayatullah",
+        role: "Anggota",
+        university: "Universitas Zainul Hasan Genggong Probolinggo",
+      },
+    ],
+  },
+  {
+    title: "KOMISI IV (Advokasi dan Kebijakan Publik)",
+    members: [
+      {
+        name: "Yahya Sakdullah",
+        role: "Ketua Komisi",
+        university: "Universitas Nahdlatul Ulama Pasuruan",
+      },
+      {
+        name: "Roni Andi Pramono",
+        role: "Sekretaris Komisi",
+        university: "STKIP PGRI Pacitan",
+      },
+      {
+        name: "Adriano Galih",
+        role: "Anggota",
+        university: "Stikes Bhakti Husada Mulia Madiun",
+      },
+      {
+        name: "Devin Andrean",
+        role: "Anggota",
+        university: "Politeknik Negeri Banyuwangi",
+      },
+      {
+        name: "Mohammad Fathan Farihi",
+        role: "Anggota",
+        university: "Universitas Islam Zainul Hasan Genggong Probolinggo",
+      },
+    ],
+  },
+  {
+    title: "KOMISI V (Media dan Jaringan)",
+    members: [
+      {
+        name: "Dimas Firdausil Qirom",
+        role: "Ketua Komisi",
+        university: "Universitas Islam Lamongan",
+      },
+      {
+        name: "Maulidya Caesya",
+        role: "Sekretaris Komisi",
+        university: "Poltekkes Kemenkes Malang",
+      },
+      {
+        name: "Siti Cholifatul Mutiah",
+        role: "Anggota",
+        university: "Sekolah Tinggi Ilmu Ekonomi Bakti Pertiwi",
+      },
+      {
+        name: "Bagus Ramadhan",
+        role: "Anggota",
+        university: "Politeknik Negeri Banyuwangi",
+      },
+    ],
   },
 ];
 
