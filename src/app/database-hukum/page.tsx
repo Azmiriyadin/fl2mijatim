@@ -193,12 +193,40 @@ export default function DatabaseHukumPage() {
   const [selectedUniversity, setSelectedUniversity] = useState("all");
   const [selectedYear, setSelectedYear] = useState("all");
   const [activeTab, setActiveTab] = useState<"documents" | "members">("documents");
+  const [docs, setDocs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredDocuments = documents.filter((doc) => {
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  const fetchDocuments = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("documents")
+      .select("*")
+      .order("created_at", { ascending: false });
+    
+    if (error) {
+      toast.error("Gagal memuat dokumen");
+      console.error(error);
+    } else {
+      setDocs(data || []);
+    }
+    setLoading(false);
+  };
+
+  const handleViewFile = (url: string) => {
+    if (!url) return toast.error("File tidak tersedia");
+    window.parent.postMessage({ type: "OPEN_EXTERNAL_URL", data: { url } }, "*");
+  };
+
+  const filteredDocuments = docs.filter((doc) => {
     const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = selectedType === "all" || doc.type.toLowerCase().includes(selectedType.replace("-", " "));
-    const matchesUniversity = selectedUniversity === "all" || doc.university.toLowerCase().includes(selectedUniversity);
-    const matchesYear = selectedYear === "all" || doc.year === selectedYear;
+    // Note: universities and years filters might need adjustments based on real data structure
+    const matchesUniversity = selectedUniversity === "all" || (doc.university && doc.university.toLowerCase().includes(selectedUniversity));
+    const matchesYear = selectedYear === "all" || doc.year?.toString() === selectedYear;
     return matchesSearch && matchesType && matchesUniversity && matchesYear;
   });
 
