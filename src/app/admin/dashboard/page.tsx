@@ -59,11 +59,12 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
+    const [activeTab, setActiveTab] = useState("overview");
   const [users, setUsers] = useState<any[]>([]);
   const [news, setNews] = useState<any[]>([]);
   const [docs, setDocs] = useState<any[]>([]);
   const [gallery, setGallery] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
   const [universities, setUniversities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
