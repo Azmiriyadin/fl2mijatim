@@ -19,19 +19,23 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 async function resetAdmin() {
   const email = 'admin.jatim@fl2mi.or.id'
   const password = 'KorwilJatim2026!Secure'
-  const userId = 'dbf30764-7812-4bc9-bbd3-4190332f2430'
 
-  console.log(`Targeting user ${email} (${userId})...`)
+  console.log(`Creating fresh admin user: ${email}...`)
   
-  const { data: { user }, error: updateError } = await supabase.auth.admin.updateUserById(
-    userId,
-    { password: password, email_confirm: true }
-  )
+  const { data: { user }, error: createError } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { 
+      role: 'superadmin',
+      full_name: 'Admin Korwil Jatim'
+    }
+  })
 
-  if (updateError) {
-    console.error('Error updating password:', updateError)
+  if (createError) {
+    console.error('Error creating user:', createError)
   } else {
-    console.log('Password updated successfully for user:', user?.email)
+    console.log('Admin user created successfully:', user?.email)
   }
 }
 
