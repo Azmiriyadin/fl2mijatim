@@ -218,6 +218,7 @@ export default function AdminDashboard() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const table = activeTab === "users" ? "users" : 
+                  activeTab === "activities" ? "events" :
                   activeTab === "content" ? (formData.contentType === "news" ? "news_articles" : formData.contentType === "docs" ? "documents" : "gallery") : "";
     
     if (!table) return;
