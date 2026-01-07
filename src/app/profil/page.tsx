@@ -13,213 +13,23 @@ import {
   Heart,
   Lightbulb,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-const teamCategories = [
-  {
-    title: "PENGURUS INTI",
-    members: [
-      {
-        name: "Achmad Arfan Hanafi",
-        role: "Koordinator Wilayah",
-        university: "Universitas Muhammadiyah Sidoarjo",
-        image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Sirojul Hikam",
-        role: "Sekretaris Jenderal",
-        university: "Universitas Nahdlatul Ulama Pasuruan",
-        image: "https://images.unsplash.com/photo-1507003211169-7a517175f739?w=400&h=400&fit=crop",
-      },
-      {
-        name: "M Azmi Zamzami Riyadin",
-        role: "Sekretaris Umum",
-        university: "Unwaha Jombang",
-        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Nofita Tamher",
-        role: "Bendahara Umum",
-        university: "Universitas Merdeka Malang",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-      },
-    ],
-  },
-  {
-    title: "KOMISI I (Hukum dan Legislasi)",
-    members: [
-      {
-        name: "Nicolas Kusuma Ananda",
-        role: "Ketua Komisi",
-        university: "Universitas Islam Blitar",
-        image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Dyah Ayu Razeka Asmarasanti",
-        role: "Sekretaris Komisi",
-        university: "STKIP PGRI Pacitan",
-        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
-      },
-      {
-        name: "M. Choirul Anwar",
-        role: "Anggota",
-        university: "IAI Syarifuddin Lumajang",
-        image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
-      },
-      {
-        name: "M Fajrul Falah",
-        role: "Anggota",
-        university: "Universitas Hasyim Asy'ari Tebuireng Jombang",
-        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop",
-      },
-    ],
-  },
-  {
-    title: "KOMISI II (Kelembagaan)",
-    members: [
-      {
-        name: "A. Zaid Tsabit A.B",
-        role: "Ketua Komisi",
-        university: "Unwaha Jombang",
-        image: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Mirza Aditama Firmansyah",
-        role: "Sekretaris Komisi",
-        university: "Politeknik Negeri Jember",
-        image: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Sekar Putri Hapsari",
-        role: "Anggota",
-        university: "Universitas 17 Agustus 1945 Banyuwangi",
-        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Muhammad Arif",
-        role: "Anggota",
-        university: "Universitas Muhammadiyah Malang",
-        image: "https://images.unsplash.com/photo-1504257466795-3e28468b6985?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Monica Rahayu",
-        role: "Anggota",
-        university: "Universitas Islam Malang",
-        image: "https://images.unsplash.com/photo-1567532939604-b6c5b0ad2e01?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Muhammad Adam",
-        role: "Anggota",
-        university: "Universitas Trunojoyo Madura",
-        image: "https://images.unsplash.com/photo-1492562080023-ab3dbdf5bbd0?w=400&h=400&fit=crop",
-      },
-    ],
-  },
-  {
-    title: "KOMISI III (Hubungan Parlemen dan Pembinaan)",
-    members: [
-      {
-        name: "Arif Rahman",
-        role: "Ketua Komisi",
-        university: "Universitas Trunojoyo Madura",
-        image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Revalino Ardyansyah",
-        role: "Sekretaris Komisi",
-        university: "Universitas 17 Agustus 1945 Surabaya",
-        image: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Wildan Pradana",
-        role: "Anggota",
-        university: "Universitas Islam Jember",
-        image: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Zayyinul Mukminin",
-        role: "Anggota",
-        university: "Universitas Annuqayah Sumenep",
-        image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Fillah Inzuly Vilthon",
-        role: "Anggota",
-        university: "UM Lamongan",
-        image: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Muhammad Syarif Hidayatullah",
-        role: "Anggota",
-        university: "Universitas Zainul Hasan Genggong Probolinggo",
-        image: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400&h=400&fit=crop",
-      },
-    ],
-  },
-  {
-    title: "KOMISI IV (Advokasi dan Kebijakan Publik)",
-    members: [
-      {
-        name: "Yahya Sakdullah",
-        role: "Ketua Komisi",
-        university: "Universitas Nahdlatul Ulama Pasuruan",
-        image: "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Roni Andi Pramono",
-        role: "Sekretaris Komisi",
-        university: "STKIP PGRI Pacitan",
-        image: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Adriano Galih",
-        role: "Anggota",
-        university: "Stikes Bhakti Husada Mulia Madiun",
-        image: "https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Devin Andrean",
-        role: "Anggota",
-        university: "Politeknik Negeri Banyuwangi",
-        image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Mohammad Fathan Farihi",
-        role: "Anggota",
-        university: "Universitas Islam Zainul Hasan Genggong Probolinggo",
-        image: "https://images.unsplash.com/photo-1507003211169-7a517175f739?w=400&h=400&fit=crop",
-      },
-    ],
-  },
-  {
-    title: "KOMISI V (Media dan Jaringan)",
-    members: [
-      {
-        name: "Dimas Firdausil Qirom",
-        role: "Ketua Komisi",
-        university: "Universitas Islam Lamongan",
-        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Maulidya Caesya",
-        role: "Sekretaris Komisi",
-        university: "Poltekkes Kemenkes Malang",
-        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Siti Cholifatul Mutiah",
-        role: "Anggota",
-        university: "Sekolah Tinggi Ilmu Ekonomi Bakti Pertiwi",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-      },
-      {
-        name: "Bagus Ramadhan",
-        role: "Anggota",
-        university: "Politeknik Negeri Banyuwangi",
-        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-      },
-    ],
-  },
-];
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  university: string;
+  image: string;
+  order_index: number;
+}
+
+interface TeamCategory {
+  id: string;
+  title: string;
+  members: TeamMember[];
+}
 
 const values = [
   {
@@ -255,6 +65,42 @@ const milestones = [
 ];
 
 export default function ProfilPage() {
+  const [teamCategories, setTeamCategories] = useState<TeamCategory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTeamData();
+  }, []);
+
+  const fetchTeamData = async () => {
+    try {
+      const { data: categories, error: catError } = await supabase
+        .from("team_categories")
+        .select("*")
+        .order("order_index", { ascending: true });
+
+      if (catError) throw catError;
+
+      const { data: members, error: memError } = await supabase
+        .from("team_members")
+        .select("*")
+        .order("order_index", { ascending: true });
+
+      if (memError) throw memError;
+
+      const structuredData = categories.map((cat: any) => ({
+        ...cat,
+        members: members.filter((m: any) => m.category_id === cat.id),
+      }));
+
+      setTeamCategories(structuredData);
+    } catch (error) {
+      console.error("Error fetching team data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -396,48 +242,54 @@ export default function ProfilPage() {
             </h2>
           </motion.div>
 
-          <div className="space-y-20">
-            {teamCategories.map((category, catIndex) => (
-              <div key={category.title}>
-                <motion.h3
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  className="text-2xl font-bold mb-8 text-primary border-l-4 border-primary pl-4"
-                >
-                  {category.title}
-                </motion.h3>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                  {category.members.map((member, index) => (
-                    <motion.div
-                      key={member.name}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                        <div className="aspect-square overflow-hidden bg-muted relative">
-                          <Image
-                            src={member.image}
-                            alt={member.name}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300" />
-                        </div>
-                        <CardContent className="p-6 text-center">
-                          <h3 className="text-lg font-semibold mb-1 line-clamp-1">{member.name}</h3>
-                          <p className="text-primary font-medium text-sm mb-1">{member.role}</p>
-                          <p className="text-muted-foreground text-xs line-clamp-2">{member.university}</p>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="space-y-20">
+              {teamCategories.map((category, catIndex) => (
+                <div key={category.id}>
+                  <motion.h3
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    className="text-2xl font-bold mb-8 text-primary border-l-4 border-primary pl-4"
+                  >
+                    {category.title}
+                  </motion.h3>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {category.members.map((member, index) => (
+                      <motion.div
+                        key={member.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                          <div className="aspect-square overflow-hidden bg-muted relative">
+                            <Image
+                              src={member.image}
+                              alt={member.name}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300" />
+                          </div>
+                          <CardContent className="p-6 text-center">
+                            <h3 className="text-lg font-semibold mb-1 line-clamp-1">{member.name}</h3>
+                            <p className="text-primary font-medium text-sm mb-1">{member.role}</p>
+                            <p className="text-muted-foreground text-xs line-clamp-2">{member.university}</p>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
