@@ -18,7 +18,9 @@ import {
   Image as ImageIcon,
   ExternalLink,
   Download,
-  Eye
+  Eye,
+  Upload,
+  Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
