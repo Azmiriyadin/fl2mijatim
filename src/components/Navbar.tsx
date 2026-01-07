@@ -57,22 +57,29 @@ export function Navbar() {
             <div className="hidden lg:flex items-center gap-3">
               {!loading && (
                 <>
-                  {user ? (
-                    <div className="flex items-center gap-3">
-                      {role === 'superadmin' && (
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href="/admin" className="gap-2">
-                            <Shield className="w-4 h-4" />
-                            Admin
-                          </Link>
+                    {user ? (
+                      <div className="flex items-center gap-3">
+                        {role === 'ADMIN' ? (
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href="/admin/dashboard" className="gap-2">
+                              <Shield className="w-4 h-4" />
+                              Dashboard Admin
+                            </Link>
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href="/member/home" className="gap-2">
+                              <User className="w-4 h-4" />
+                              Member Area
+                            </Link>
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10">
+                          <LogOut className="w-4 h-4" />
+                          Keluar
                         </Button>
-                      )}
-                      <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10">
-                        <LogOut className="w-4 h-4" />
-                        Keluar
-                      </Button>
-                    </div>
-                  ) : (
+                      </div>
+                    ) : (
                     <>
                       <Button variant="ghost" size="sm" asChild>
                         <Link href="/login">Masuk</Link>
