@@ -728,7 +728,12 @@ export default function AdminDashboard() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingItem ? 'Edit' : 'Tambah'} {formData.contentType === 'news' ? 'Berita' : formData.contentType === 'docs' ? 'Dokumen' : formData.contentType === 'users' ? 'User' : 'Galeri'}</DialogTitle>
+            <DialogTitle>{editingItem ? 'Edit' : 'Tambah'} {
+              formData.contentType === 'news' ? 'Berita' : 
+              formData.contentType === 'docs' ? 'Dokumen' : 
+              formData.contentType === 'users' ? 'User' : 
+              formData.contentType === 'events' ? 'Kegiatan' : 'Galeri'
+            }</DialogTitle>
             <DialogDescription>Pastikan data yang Anda masukkan sudah benar.</DialogDescription>
           </DialogHeader>
           
