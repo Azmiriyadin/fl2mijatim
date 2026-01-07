@@ -81,7 +81,7 @@ export function Navbar() {
                           </Button>
                         )}
                         <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10">
-                          <LogOut className="w-4 h-4" />
+                          <LogOutIcon className="w-4 h-4" />
                           Keluar
                         </Button>
                       </div>
