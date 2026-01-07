@@ -50,22 +50,22 @@ const teamCategories = [
       {
         name: "Nicolas Kusuma Ananda",
         role: "Ketua Komisi",
-        university: "Universitas Trunojoyo Madura",
+        university: "Universitas Islam Blitar",
       },
       {
         name: "Dyah Ayu Razeka Asmarasanti",
         role: "Sekretaris Komisi",
-        university: "Politeknik Negeri Jember",
+        university: "STKIP PGRI Pacitan",
       },
       {
         name: "M. Choirul Anwar",
         role: "Anggota",
-        university: "IAI Syarifuddin Lumajang",
+        university: "UIN Kiai Ageng Muhammad Besari Ponorogo",
       },
       {
         name: "M Fajrul Falah",
         role: "Anggota",
-        university: "Universitas Hasyim Asy'ari Tebuireng Jombang",
+        university: "Universitas Islam Lamongan",
       },
     ],
   },
@@ -75,32 +75,32 @@ const teamCategories = [
       {
         name: "A. Zaid Tsabit A.B",
         role: "Ketua Komisi",
-        university: "Unwaha Jombang",
+        university: "Universitas Hasyim Asy'ari Jombang",
       },
       {
         name: "Mirza Aditama Firmansyah",
         role: "Sekretaris Komisi",
-        university: "Politeknik Negeri Jember",
+        university: "UM Lamongan",
       },
       {
         name: "Sekar Putri Hapsari",
         role: "Anggota",
-        university: "Universitas 17 Agustus 1945 Banyuwangi",
+        university: "UIN Kiai Ageng Muhammad Besari Ponorogo",
       },
       {
         name: "Muhammad Arif",
         role: "Anggota",
-        university: "Universitas Muhammadiyah Malang",
+        university: "Politeknik Negeri Banyuwangi",
       },
       {
         name: "Monica Rahayu",
         role: "Anggota",
-        university: "Universitas Islam Malang",
+        university: "UIN Kiai Ageng Muhammad Besari Ponorogo",
       },
       {
         name: "Muhammad Adam",
         role: "Anggota",
-        university: "Universitas Trunojoyo Madura",
+        university: "Universitas Islam Lamongan",
       },
     ],
   },
@@ -110,22 +110,22 @@ const teamCategories = [
       {
         name: "Arif Rahman",
         role: "Ketua Komisi",
-        university: "Universitas Trunojoyo Madura",
+        university: "Unitri Malang",
       },
       {
         name: "Revalino Ardyansyah",
         role: "Sekretaris Komisi",
-        university: "Universitas 17 Agustus 1945 Surabaya",
+        university: "Politeknik Negeri Banyuwangi",
       },
       {
         name: "Wildan Pradana",
         role: "Anggota",
-        university: "Universitas Islam Jember",
+        university: "UM Surabaya",
       },
       {
         name: "Zayyinul Mukminin",
         role: "Anggota",
-        university: "Universitas Annuqayah Sumenep",
+        university: "Universitas Nahdlatul Ulama Pasuruan",
       },
       {
         name: "Fillah Inzuly Vilthon",
@@ -185,12 +185,12 @@ const teamCategories = [
       {
         name: "Siti Cholifatul Mutiah",
         role: "Anggota",
-        university: "Sekolah Tinggi Ilmu Ekonomi Bakti Pertiwi",
+        university: "Poltekkes Kemenkes Malang",
       },
       {
         name: "Bagus Ramadhan",
         role: "Anggota",
-        university: "Politeknik Negeri Banyuwangi",
+        university: "Universitas Islam Balitar Blitar",
       },
     ],
   },
