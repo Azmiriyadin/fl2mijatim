@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -26,21 +27,25 @@ const teamCategories = [
         name: "Achmad Arfan Hanafi",
         role: "Koordinator Wilayah",
         university: "Universitas Muhammadiyah Sidoarjo",
+        image: "https://images.unsplash.com/photo-1507003211169-7a517175f739?w=400&h=400&fit=crop",
       },
       {
         name: "Sirojul Hikam",
         role: "Sekretaris Jenderal",
         university: "Universitas Nahdlatul Ulama Pasuruan",
+        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
       },
       {
         name: "M Azmi Zamzami Riyadin",
         role: "Sekretaris Umum",
         university: "Unwaha Jombang",
+        image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
       },
       {
         name: "Nofita Tamher",
         role: "Bendahara Umum",
         university: "Universitas Merdeka Malang",
+        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
       },
     ],
   },
@@ -50,22 +55,26 @@ const teamCategories = [
       {
         name: "Nicolas Kusuma Ananda",
         role: "Ketua Komisi",
-        university: "Universitas Islam Blitar",
+        university: "Universitas Trunojoyo Madura",
+        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop",
       },
       {
         name: "Dyah Ayu Razeka Asmarasanti",
         role: "Sekretaris Komisi",
-        university: "STKIP PGRI Pacitan",
+        university: "Politeknik Negeri Jember",
+        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
       },
       {
         name: "M. Choirul Anwar",
         role: "Anggota",
-        university: "UIN Kiai Ageng Muhammad Besari Ponorogo",
+        university: "IAI Syarifuddin Lumajang",
+        image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
       },
       {
         name: "M Fajrul Falah",
         role: "Anggota",
-        university: "Universitas Islam Lamongan",
+        university: "Universitas Hasyim Asy'ari Tebuireng Jombang",
+        image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop",
       },
     ],
   },
@@ -75,32 +84,38 @@ const teamCategories = [
       {
         name: "A. Zaid Tsabit A.B",
         role: "Ketua Komisi",
-        university: "Universitas Hasyim Asy'ari Jombang",
+        university: "Unwaha Jombang",
+        image: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=400&h=400&fit=crop",
       },
       {
         name: "Mirza Aditama Firmansyah",
         role: "Sekretaris Komisi",
-        university: "UM Lamongan",
+        university: "Politeknik Negeri Jember",
+        image: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=400&h=400&fit=crop",
       },
       {
         name: "Sekar Putri Hapsari",
         role: "Anggota",
-        university: "UIN Kiai Ageng Muhammad Besari Ponorogo",
+        university: "Universitas 17 Agustus 1945 Banyuwangi",
+        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
       },
       {
         name: "Muhammad Arif",
         role: "Anggota",
-        university: "Politeknik Negeri Banyuwangi",
+        university: "Universitas Muhammadiyah Malang",
+        image: "https://images.unsplash.com/photo-1504257466795-3e28468b6985?w=400&h=400&fit=crop",
       },
       {
         name: "Monica Rahayu",
         role: "Anggota",
-        university: "UIN Kiai Ageng Muhammad Besari Ponorogo",
+        university: "Universitas Islam Malang",
+        image: "https://images.unsplash.com/photo-1567532939604-b6c5b0ad2e01?w=400&h=400&fit=crop",
       },
       {
         name: "Muhammad Adam",
         role: "Anggota",
-        university: "Universitas Islam Lamongan",
+        university: "Universitas Trunojoyo Madura",
+        image: "https://images.unsplash.com/photo-1492562080023-ab3dbdf5bbd0?w=400&h=400&fit=crop",
       },
     ],
   },
@@ -110,32 +125,38 @@ const teamCategories = [
       {
         name: "Arif Rahman",
         role: "Ketua Komisi",
-        university: "Unitri Malang",
+        university: "Universitas Trunojoyo Madura",
+        image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop",
       },
       {
         name: "Revalino Ardyansyah",
         role: "Sekretaris Komisi",
-        university: "Politeknik Negeri Banyuwangi",
+        university: "Universitas 17 Agustus 1945 Surabaya",
+        image: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop",
       },
       {
         name: "Wildan Pradana",
         role: "Anggota",
-        university: "UM Surabaya",
+        university: "Universitas Islam Jember",
+        image: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&h=400&fit=crop",
       },
       {
         name: "Zayyinul Mukminin",
         role: "Anggota",
-        university: "Universitas Nahdlatul Ulama Pasuruan",
+        university: "Universitas Annuqayah Sumenep",
+        image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop",
       },
       {
         name: "Fillah Inzuly Vilthon",
         role: "Anggota",
         university: "UM Lamongan",
+        image: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=400&h=400&fit=crop",
       },
       {
         name: "Muhammad Syarif Hidayatullah",
         role: "Anggota",
         university: "Universitas Zainul Hasan Genggong Probolinggo",
+        image: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400&h=400&fit=crop",
       },
     ],
   },
@@ -146,26 +167,31 @@ const teamCategories = [
         name: "Yahya Sakdullah",
         role: "Ketua Komisi",
         university: "Universitas Nahdlatul Ulama Pasuruan",
+        image: "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=400&h=400&fit=crop",
       },
       {
         name: "Roni Andi Pramono",
         role: "Sekretaris Komisi",
         university: "STKIP PGRI Pacitan",
+        image: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=400&h=400&fit=crop",
       },
       {
         name: "Adriano Galih",
         role: "Anggota",
         university: "Stikes Bhakti Husada Mulia Madiun",
+        image: "https://images.unsplash.com/photo-1517070208541-6ddc4d3efbcb?w=400&h=400&fit=crop",
       },
       {
         name: "Devin Andrean",
         role: "Anggota",
         university: "Politeknik Negeri Banyuwangi",
+        image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&h=400&fit=crop",
       },
       {
         name: "Mohammad Fathan Farihi",
         role: "Anggota",
         university: "Universitas Islam Zainul Hasan Genggong Probolinggo",
+        image: "https://images.unsplash.com/photo-1507003211169-7a517175f739?w=400&h=400&fit=crop",
       },
     ],
   },
@@ -176,21 +202,25 @@ const teamCategories = [
         name: "Dimas Firdausil Qirom",
         role: "Ketua Komisi",
         university: "Universitas Islam Lamongan",
+        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop",
       },
       {
         name: "Maulidya Caesya",
         role: "Sekretaris Komisi",
         university: "Poltekkes Kemenkes Malang",
+        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
       },
       {
         name: "Siti Cholifatul Mutiah",
         role: "Anggota",
-        university: "Poltekkes Kemenkes Malang",
+        university: "Sekolah Tinggi Ilmu Ekonomi Bakti Pertiwi",
+        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
       },
       {
         name: "Bagus Ramadhan",
         role: "Anggota",
-        university: "Universitas Islam Balitar Blitar",
+        university: "Politeknik Negeri Banyuwangi",
+        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
       },
     ],
   },
@@ -392,9 +422,14 @@ export default function ProfilPage() {
                       transition={{ delay: index * 0.05 }}
                     >
                       <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                        <div className="aspect-square overflow-hidden bg-muted flex items-center justify-center relative">
-                          <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300" />
-                          <User className="w-20 h-20 text-muted-foreground/40 group-hover:scale-110 transition-transform duration-500" />
+                        <div className="aspect-square overflow-hidden bg-muted relative">
+                          <Image
+                            src={member.image}
+                            alt={member.name}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300" />
                         </div>
                         <CardContent className="p-6 text-center">
                           <h3 className="text-lg font-semibold mb-1 line-clamp-1">{member.name}</h3>
