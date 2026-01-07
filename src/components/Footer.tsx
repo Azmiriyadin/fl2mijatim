@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Phone, MapPin, Instagram, Twitter, Youtube } from "lucide-react";
 
 const footerLinks = {
