@@ -906,7 +906,7 @@ export default function AdminDashboard() {
       </Dialog>
 
       {/* DELETE CONFIRMATION DIALOG */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
@@ -918,7 +918,7 @@ export default function AdminDashboard() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isUploading}>
+            <Button variant="outline" onClick={() => setIsDeleteConfirmOpen(false)} disabled={isUploading}>
               Batal
             </Button>
             <Button variant="destructive" onClick={confirmDelete} disabled={isUploading}>
