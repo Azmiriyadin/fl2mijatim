@@ -241,7 +241,7 @@ export default function Home() {
               { title: "Member Directory", description: "Mapping persebaran DPM/BPM dari berbagai universitas di Jawa Timur.", href: "/database-hukum", color: "from-violet-500 to-purple-600", icon: "Users" },
             ]).map((feature, index) => (
               <motion.div
-                key={feature.title}
+                key={feature.id || `feature-${index}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
