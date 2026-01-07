@@ -193,7 +193,7 @@ export default function Home() {
               { label: "Event Tahunan", value: "30+", icon: "Calendar" },
             ]).map((stat, index) => (
               <motion.div
-                key={stat.label}
+                key={stat.id || `stat-${index}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
