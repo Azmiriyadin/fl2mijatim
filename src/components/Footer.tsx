@@ -34,15 +34,21 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">F</span>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="relative w-12 h-12 overflow-hidden">
+                  <Image
+                    src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/b8599709-4ea0-4a5f-b30b-d57061bedd8b/2-1767764401652.png?width=8000&height=8000&resize=contain"
+                    alt="FL2MI Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <div>
+                  <span className="font-bold text-xl tracking-tight block">FL2MI</span>
+                  <span className="text-background/60 text-sm">Korwil Jawa Timur</span>
+                </div>
               </div>
-              <div>
-                <span className="font-bold text-xl tracking-tight block">FL2MI</span>
-                <span className="text-background/60 text-sm">Korwil Jawa Timur</span>
-              </div>
-            </div>
+
             <p className="text-background/70 text-sm leading-relaxed mb-6">
               Forum Lembaga Legislatif Mahasiswa Indonesia - Koordinator Wilayah Jawa Timur.
               Memperkuat demokrasi kampus di seluruh Jawa Timur.
