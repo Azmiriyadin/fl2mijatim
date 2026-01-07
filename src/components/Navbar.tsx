@@ -14,8 +14,18 @@ const navLinks = [
   { label: "Kontak", href: "/kontak" },
 ];
 
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/lib/supabase";
+import { LogOut, User, Shield } from "lucide-react";
+
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, role, loading } = useAuth();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -45,12 +55,35 @@ export function Navbar() {
             </div>
 
             <div className="hidden lg:flex items-center gap-3">
-              <Button variant="ghost" size="sm">
-                Masuk
-              </Button>
-              <Button size="sm" className="bg-primary hover:bg-primary/90">
-                Daftar
-              </Button>
+              {!loading && (
+                <>
+                  {user ? (
+                    <div className="flex items-center gap-3">
+                      {role === 'superadmin' && (
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href="/admin" className="gap-2">
+                            <Shield className="w-4 h-4" />
+                            Admin
+                          </Link>
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10">
+                        <LogOut className="w-4 h-4" />
+                        Keluar
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href="/login">Masuk</Link>
+                      </Button>
+                      <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
+                        <Link href="/register">Daftar</Link>
+                      </Button>
+                    </>
+                  )}
+                </>
+              )}
             </div>
 
             <button
@@ -83,10 +116,31 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 mt-4 border-t border-border/50 space-y-2">
-                <Button variant="outline" className="w-full">
-                  Masuk
-                </Button>
-                <Button className="w-full">Daftar</Button>
+                {!loading && (
+                  <>
+                    {user ? (
+                      <>
+                        {role === 'superadmin' && (
+                          <Button className="w-full" asChild>
+                            <Link href="/admin">Dashboard Admin</Link>
+                          </Button>
+                        )}
+                        <Button variant="outline" className="w-full text-destructive" onClick={handleLogout}>
+                          Keluar
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="outline" className="w-full" asChild>
+                          <Link href="/login">Masuk</Link>
+                        </Button>
+                        <Button className="w-full" asChild>
+                          <Link href="/register">Daftar</Link>
+                        </Button>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
