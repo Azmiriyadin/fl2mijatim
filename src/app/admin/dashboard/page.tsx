@@ -61,7 +61,6 @@ import { toast } from "sonner";
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState("overview");
   const [users, setUsers] = useState<any[]>([]);
-  const [news, setNews] = useState<any[]>([]);
   const [docs, setDocs] = useState<any[]>([]);
   const [gallery, setGallery] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
@@ -107,7 +106,6 @@ export default function AdminDashboard() {
     setLoading(true);
     await Promise.all([
       fetchUsers(),
-      fetchNews(),
       fetchDocs(),
       fetchGallery(),
       fetchEvents(),
@@ -120,11 +118,6 @@ export default function AdminDashboard() {
   const fetchUsers = async () => {
     const { data } = await supabase.from("users").select("*").order("created_at", { ascending: false });
     setUsers(data || []);
-  };
-
-  const fetchNews = async () => {
-    const { data } = await supabase.from("news_articles").select("*").order("created_at", { ascending: false });
-    setNews(data || []);
   };
 
   const fetchDocs = async () => {
@@ -188,8 +181,7 @@ export default function AdminDashboard() {
         try {
           const urlParts = deletingItem.fileUrl.split('/');
           const fileName = urlParts[urlParts.length - 1];
-          const bucket = deletingItem.table === "news_articles" ? "news" : 
-                         deletingItem.table === "documents" ? "documents" : 
+          const bucket = deletingItem.table === "documents" ? "documents" : 
                          deletingItem.table === "events" ? "news" : "gallery";
           
           await supabase.storage.from(bucket).remove([fileName]);
@@ -218,8 +210,7 @@ export default function AdminDashboard() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const table = activeTab === "users" ? "users" : 
-                  activeTab === "activities" ? "events" :
-                  activeTab === "content" ? (formData.contentType === "news" ? "news_articles" : formData.contentType === "docs" ? "documents" : "gallery") : "";
+                  activeTab === "content" ? (formData.contentType === "events" ? "events" : formData.contentType === "docs" ? "documents" : "gallery") : "";
     
     if (!table) return;
 
@@ -231,10 +222,10 @@ export default function AdminDashboard() {
       
       // Handle File Upload if selected
       if (selectedFile) {
-        const bucket = contentType === "news" ? "news" : contentType === "docs" ? "documents" : "gallery";
+        const bucket = contentType === "events" ? "news" : contentType === "docs" ? "documents" : "gallery";
         const publicUrl = await handleFileUpload(selectedFile, bucket);
         
-        if (contentType === "news" || contentType === "gallery") {
+        if (contentType === "events" || contentType === "gallery") {
           dbData.image_url = publicUrl;
         } else if (contentType === "docs") {
           dbData.file_url = publicUrl;
@@ -401,7 +392,7 @@ export default function AdminDashboard() {
                     { label: "Total User", value: users.length, icon: <Users />, color: "bg-blue-500" },
                     { label: "Pending Verif", value: users.filter(u => !u.is_verified).length, icon: <Bell />, color: "bg-amber-500" },
                     { label: "Dokumen PDF", value: docs.length, icon: <FileText />, color: "bg-emerald-500" },
-                    { label: "Berita Aktif", value: news.length, icon: <LayoutDashboard />, color: "bg-purple-500" },
+                    { label: "Kegiatan & Berita", value: events.length, icon: <Calendar />, color: "bg-purple-500" },
                   ].map((stat, i) => (
                     <Card key={i}>
                       <CardContent className="p-6">
@@ -530,29 +521,52 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <Tabs defaultValue="news" className="space-y-6">
+                <Tabs defaultValue="events" className="space-y-6">
                   <TabsList className="bg-muted p-1 rounded-xl">
-                    <TabsTrigger value="news" className="rounded-lg px-6">Berita</TabsTrigger>
+                    <TabsTrigger value="events" className="rounded-lg px-6">Kegiatan</TabsTrigger>
                     <TabsTrigger value="docs" className="rounded-lg px-6">Legislasi (PDF)</TabsTrigger>
                     <TabsTrigger value="gallery" className="rounded-lg px-6">Galeri</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="news" className="space-y-4">
+                  <TabsContent value="events" className="space-y-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="text-sm text-muted-foreground">Kelola semua konten yang tampil di halaman Informasi & Kegiatan.</p>
+                      <Button size="sm" className="gap-2" onClick={() => openAddDialog("events")}>
+                        <Plus className="w-4 h-4" /> Tambah Berita / Kegiatan
+                      </Button>
+                    </div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <Card className="border-dashed flex flex-col items-center justify-center p-8 text-center hover:bg-muted/30 transition-colors cursor-pointer group" onClick={() => openAddDialog("news")}>
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><Plus className="w-5 h-5 text-primary" /></div>
-                        <h3 className="font-semibold">Tambah Berita</h3>
-                      </Card>
-                      {news.map(item => (
+                      {events.map(item => (
                         <Card key={item.id} className="overflow-hidden group flex flex-col">
                           <div className="aspect-video bg-muted relative">
-                            {item.image_url ? <img src={item.image_url} className="w-full h-full object-cover" /> : <div className="absolute inset-0 flex items-center justify-center text-muted-foreground"><ImageIcon className="w-8 h-8 opacity-20" /></div>}
+                            {item.image_url ? (
+                              <img src={item.image_url} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                                <ImageIcon className="w-8 h-8 opacity-20" />
+                              </div>
+                            )}
+                            <div className="absolute top-2 left-2">
+                              <Badge className={
+                                item.type === 'Event' ? 'bg-blue-500' : 
+                                item.type === 'Berita' ? 'bg-emerald-500' : 
+                                item.type === 'Pengumuman' ? 'bg-amber-500' : 'bg-purple-500'
+                              }>
+                                {item.type}
+                              </Badge>
+                            </div>
                           </div>
                           <CardContent className="p-4 flex-1 flex flex-col">
-                            <h3 className="font-semibold line-clamp-2">{item.title}</h3>
-                            <div className="mt-auto pt-4 flex gap-2">
-                              <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(item, "news")}><Edit className="w-3 h-3 mr-1" /> Edit</Button>
-                              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete("news_articles", item.id, item.image_url)}><Trash2 className="w-3 h-3" /></Button>
+                            <h3 className="font-semibold line-clamp-2 mb-2">{item.title}</h3>
+                            <div className="space-y-1 mb-4">
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                              </div>
+                            </div>
+                            <div className="mt-auto pt-4 flex gap-2 border-t">
+                              <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(item, "events")}><Edit className="w-3 h-3 mr-1" /> Edit</Button>
+                              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete("events", item.id, item.image_url)}><Trash2 className="w-3 h-3" /></Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -617,74 +631,6 @@ export default function AdminDashboard() {
               </motion.div>
             )}
 
-            {/* ACTIVITIES TAB */}
-            {activeTab === "activities" && (
-              <motion.div key="activities" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-2xl font-bold">Kegiatan & Informasi</h1>
-                    <p className="text-muted-foreground">Kelola event, berita, pengumuman, dan press release.</p>
-                  </div>
-                  <Button className="gap-2" onClick={() => openAddDialog("events")}>
-                    <Plus className="w-4 h-4" /> Tambah Kegiatan
-                  </Button>
-                </div>
-
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {events.map(item => (
-                    <Card key={item.id} className="overflow-hidden group flex flex-col">
-                      <div className="aspect-video bg-muted relative">
-                        {item.image_url ? (
-                          <img src={item.image_url} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                            <ImageIcon className="w-8 h-8 opacity-20" />
-                          </div>
-                        )}
-                        <div className="absolute top-2 left-2">
-                          <Badge className={
-                            item.type === 'Event' ? 'bg-blue-500' : 
-                            item.type === 'Berita' ? 'bg-emerald-500' : 
-                            item.type === 'Pengumuman' ? 'bg-amber-500' : 'bg-purple-500'
-                          }>
-                            {item.type}
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4 flex-1 flex flex-col">
-                        <h3 className="font-semibold line-clamp-2 mb-2">{item.title}</h3>
-                        <div className="space-y-1 mb-4">
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          </div>
-                          {item.location && (
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <MapPin className="w-3 h-3" />
-                              {item.location}
-                            </div>
-                          )}
-                        </div>
-                        <div className="mt-auto pt-4 flex gap-2 border-t">
-                          <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(item, "events")}><Edit className="w-3 h-3 mr-1" /> Edit</Button>
-                          <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete("events", item.id, item.image_url)}><Trash2 className="w-3 h-3" /></Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                  {events.length === 0 && (
-                    <div className="col-span-full py-20 text-center">
-                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Calendar className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                      <h3 className="font-semibold">Belum Ada Kegiatan</h3>
-                      <p className="text-muted-foreground text-sm">Klik tombol "Tambah Kegiatan" untuk mulai.</p>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
             {/* LOGS TAB */}
             {activeTab === "logs" && (
               <motion.div key="logs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -721,10 +667,9 @@ export default function AdminDashboard() {
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingItem ? 'Edit' : 'Tambah'} {
-              formData.contentType === 'news' ? 'Berita' : 
               formData.contentType === 'docs' ? 'Dokumen' : 
               formData.contentType === 'users' ? 'User' : 
-              formData.contentType === 'events' ? 'Kegiatan' : 'Galeri'
+              formData.contentType === 'events' ? 'Kegiatan / Berita' : 'Galeri'
             }</DialogTitle>
             <DialogDescription>Pastikan data yang Anda masukkan sudah benar.</DialogDescription>
           </DialogHeader>
@@ -766,7 +711,7 @@ export default function AdminDashboard() {
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Judul Kegiatan</Label>
+                    <Label>Judul Kegiatan / Berita</Label>
                     <Input value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} required />
                   </div>
                   <div className="space-y-2">
@@ -824,7 +769,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Gambar Banner</Label>
+                  <Label>Gambar Banner / Thumbnail</Label>
                   <div className="flex flex-col gap-4">
                     {formData.image_url && !selectedFile && (
                       <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-muted">
@@ -836,7 +781,7 @@ export default function AdminDashboard() {
                         <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-colors">
                           <Upload className="w-8 h-8 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">
-                            {selectedFile ? selectedFile.name : 'Pilih Banner Kegiatan'}
+                            {selectedFile ? selectedFile.name : 'Pilih Gambar'}
                           </span>
                         </div>
                       </Label>
@@ -859,53 +804,6 @@ export default function AdminDashboard() {
                 <div className="space-y-2">
                   <Label>Konten Lengkap</Label>
                   <Textarea className="h-32" value={formData.content || ''} onChange={e => setFormData({...formData, content: e.target.value})} />
-                </div>
-              </>
-            )}
-
-            {formData.contentType === 'news' && (
-              <>
-                <div className="space-y-2">
-                  <Label>Judul Berita</Label>
-                  <Input value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} required />
-                </div>
-                <div className="space-y-2">
-                  <Label>Kategori</Label>
-                  <Input value={formData.category || ''} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Nasional, Regional, Event..." />
-                </div>
-                <div className="space-y-2">
-                  <Label>Gambar Berita</Label>
-                  <div className="flex flex-col gap-4">
-                    {formData.image_url && !selectedFile && (
-                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-muted">
-                        <img src={formData.image_url} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                          <p className="text-white text-xs">Gambar Saat Ini</p>
-                        </div>
-                      </div>
-                    )}
-                    <div className="grid w-full items-center gap-1.5">
-                      <Label htmlFor="news-image" className="cursor-pointer">
-                        <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-colors">
-                          <Upload className="w-8 h-8 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            {selectedFile ? selectedFile.name : 'Klik untuk upload gambar (Max 5MB)'}
-                          </span>
-                        </div>
-                      </Label>
-                      <Input 
-                        id="news-image" 
-                        type="file" 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={e => setSelectedFile(e.target.files?.[0] || null)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Konten Berita</Label>
-                  <Textarea className="h-32" value={formData.content || ''} onChange={e => setFormData({...formData, content: e.target.value})} required />
                 </div>
               </>
             )}
