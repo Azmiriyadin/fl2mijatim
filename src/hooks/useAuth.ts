@@ -16,14 +16,14 @@ export function useAuth() {
       setSession(session);
       setUser(session?.user ?? null);
       
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        setRole(profile?.role ?? 'campus_delegate');
-      }
+        if (session?.user) {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+          setRole(userData?.role ?? 'USER');
+        }
       
       setLoading(false);
     };
@@ -34,14 +34,14 @@ export function useAuth() {
       setSession(session);
       setUser(session?.user ?? null);
       
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        setRole(profile?.role ?? 'campus_delegate');
-      } else {
+        if (session?.user) {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+          setRole(userData?.role ?? 'USER');
+        } else {
         setRole(null);
       }
       
