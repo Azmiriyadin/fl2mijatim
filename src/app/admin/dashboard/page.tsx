@@ -189,7 +189,8 @@ export default function AdminDashboard() {
           const urlParts = deletingItem.fileUrl.split('/');
           const fileName = urlParts[urlParts.length - 1];
           const bucket = deletingItem.table === "news_articles" ? "news" : 
-                         deletingItem.table === "documents" ? "documents" : "gallery";
+                         deletingItem.table === "documents" ? "documents" : 
+                         deletingItem.table === "events" ? "news" : "gallery";
           
           await supabase.storage.from(bucket).remove([fileName]);
         } catch (storageErr) {
