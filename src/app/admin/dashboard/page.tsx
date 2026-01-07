@@ -168,7 +168,7 @@ export default function AdminDashboard() {
 
   const handleDelete = (table: string, id: string, fileUrl?: string) => {
     setDeletingItem({ table, id, fileUrl });
-    setIsDeleteDialogOpen(true);
+    setIsDeleteConfirmOpen(true);
   };
 
   const confirmDelete = async () => {
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
       toast.error("Gagal menghapus data: " + error.message);
     } finally {
       setIsUploading(false);
-      setIsDeleteDialogOpen(false);
+      setIsDeleteConfirmOpen(false);
       setDeletingItem(null);
     }
   };
