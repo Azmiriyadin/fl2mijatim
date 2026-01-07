@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -14,78 +15,49 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { supabase } from "@/lib/supabase";
 
-const features = [
-  {
-    icon: Scale,
-    title: "Database Hukum",
-    description:
-      "Repositori digital UU KM/KBM se-Jawa Timur yang dapat difilter berdasarkan kampus.",
-    href: "/database-hukum",
-    color: "from-blue-500 to-indigo-600",
-  },
-  {
-    icon: Calendar,
-    title: "Event Management",
-    description:
-      "Sistem pendaftaran Muswil/Rakorwil terintegrasi dengan QR Code sertifikat.",
-    href: "/berita",
-    color: "from-emerald-500 to-teal-600",
-  },
-  {
-    icon: MessageSquare,
-    title: "Aspirasi Mahasiswa",
-    description:
-      "Formulir aduan dan aspirasi publik yang masuk ke dashboard monitoring.",
-    href: "/kontak",
-    color: "from-orange-500 to-red-500",
-  },
-  {
-    icon: Users,
-    title: "Member Directory",
-    description:
-      "Mapping persebaran DPM/BPM dari berbagai universitas di Jawa Timur.",
-    href: "/database-hukum",
-    color: "from-violet-500 to-purple-600",
-  },
-];
-
-const stats = [
-  { value: "50+", label: "Universitas", icon: Building2 },
-  { value: "200+", label: "Dokumen Hukum", icon: FileText },
-  { value: "1000+", label: "Anggota Aktif", icon: Users },
-  { value: "30+", label: "Event Tahunan", icon: Calendar },
-];
-
-const newsItems = [
-  {
-    title: "Rakorwil FL2MI Jatim 2025",
-    excerpt: "Rapat koordinasi wilayah untuk memperkuat jaringan legislatif mahasiswa.",
-    date: "15 Jan 2025",
-    category: "Event",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
-  },
-  {
-    title: "Workshop Penyusunan Legislasi Kampus",
-    excerpt: "Pelatihan intensif untuk delegasi DPM/BPM dalam menyusun produk hukum.",
-    date: "10 Jan 2025",
-    category: "Pelatihan",
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=300&fit=crop",
-  },
-  {
-    title: "Deklarasi Kolaborasi Legislatif",
-    excerpt: "Penandatanganan MoU kerjasama antar lembaga legislatif mahasiswa.",
-    date: "5 Jan 2025",
-    category: "Berita",
-    image: "https://images.unsplash.com/photo-1559523161-0fc0d8b38a7a?w=400&h=300&fit=crop",
-  },
-];
+const IconComponent = ({ name, className }: { name: string, className?: string }) => {
+  const Icon = (LucideIcons as any)[name] || LucideIcons.HelpCircle;
+  return <Icon className={className} />;
+};
 
 export default function Home() {
+  const [siteSettings, setSiteSettings] = useState<any>({});
+  const [stats, setStats] = useState<any[]>([]);
+  const [features, setFeatures] = useState<any[]>([]);
+  const [newsItems, setNewsItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: settingsData } = await supabase.from('site_settings').select('*');
+      const settings = (settingsData || []).reduce((acc: any, curr: any) => {
+        acc[curr.key] = curr.value;
+        return acc;
+      }, {});
+      setSiteSettings(settings);
+
+      const { data: statsData } = await supabase.from('home_stats').select('*').order('display_order');
+      if (statsData) setStats(statsData);
+
+      const { data: featuresData } = await supabase.from('home_features').select('*').order('display_order');
+      if (featuresData) setFeatures(featuresData);
+
+      const { data: newsData } = await supabase.from('news_articles').select('*').order('created_at', { ascending: false }).limit(3);
+      if (newsData) setNewsItems(newsData);
+      
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -118,15 +90,15 @@ export default function Home() {
               </motion.div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
-                <span className="block text-foreground">Memperkuat</span>
+                <span className="block text-foreground">{siteSettings.hero_title_1 || "Memperkuat"}</span>
                 <span className="block bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">
-                  Demokrasi Kampus
+                  {siteSettings.hero_title_2 || "Demokrasi Kampus"}
                 </span>
-                <span className="block text-foreground">Jawa Timur</span>
+                <span className="block text-foreground">{siteSettings.hero_title_3 || "Jawa Timur"}</span>
               </h1>
 
               <p className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-xl mx-auto lg:mx-0">
-                Koordinator Wilayah Jawa Timur yang menghimpun dan memperkuat lembaga legislatif mahasiswa di seluruh provinsi.
+                {siteSettings.hero_subtitle || "Koordinator Wilayah Jawa Timur yang menghimpun dan memperkuat lembaga legislatif mahasiswa di seluruh provinsi."}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -160,33 +132,39 @@ export default function Home() {
                     <div className="w-3 h-3 rounded-full bg-green-400" />
                   </div>
                   <div className="pt-16 p-6 space-y-4">
-                    <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-xl">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <Scale className="w-6 h-6 text-primary" />
+                    {stats.slice(0, 3).map((stat, i) => (
+                      <div key={stat.id} className={`flex items-center gap-4 p-4 ${i === 0 ? 'bg-primary/5' : i === 1 ? 'bg-accent/5' : 'bg-emerald-500/5'} rounded-xl`}>
+                        <div className={`w-12 h-12 rounded-xl ${i === 0 ? 'bg-primary/10' : i === 1 ? 'bg-accent/10' : 'bg-emerald-500/10'} flex items-center justify-center`}>
+                          <IconComponent name={stat.icon} className={`w-6 h-6 ${i === 0 ? 'text-primary' : i === 1 ? 'text-accent' : 'text-emerald-500'}`} />
+                        </div>
+                        <div>
+                          <div className="font-semibold">{stat.label}</div>
+                          <div className="text-sm text-muted-foreground">{stat.value}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-semibold">Database Legislasi</div>
-                        <div className="text-sm text-muted-foreground">200+ Dokumen</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 p-4 bg-accent/5 rounded-xl">
-                      <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                        <Users className="w-6 h-6 text-accent" />
-                      </div>
-                      <div>
-                        <div className="font-semibold">Member Directory</div>
-                        <div className="text-sm text-muted-foreground">50+ Universitas</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 p-4 bg-emerald-500/5 rounded-xl">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                        <Calendar className="w-6 h-6 text-emerald-500" />
-                      </div>
-                      <div>
-                        <div className="font-semibold">Event Terjadwal</div>
-                        <div className="text-sm text-muted-foreground">5 Event Bulan Ini</div>
-                      </div>
-                    </div>
+                    ))}
+                    {stats.length === 0 && (
+                      <>
+                        <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-xl">
+                          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Scale className="w-6 h-6 text-primary" />
+                          </div>
+                          <div>
+                            <div className="font-semibold">Database Legislasi</div>
+                            <div className="text-sm text-muted-foreground">200+ Dokumen</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 p-4 bg-accent/5 rounded-xl">
+                          <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                            <Users className="w-6 h-6 text-accent" />
+                          </div>
+                          <div>
+                            <div className="font-semibold">Member Directory</div>
+                            <div className="text-sm text-muted-foreground">50+ Universitas</div>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -208,7 +186,12 @@ export default function Home() {
       <section className="py-20 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
+            {(stats.length > 0 ? stats : [
+              { label: "Universitas", value: "50+", icon: "Building2" },
+              { label: "Dokumen Hukum", value: "200+", icon: "FileText" },
+              { label: "Anggota Aktif", value: "1000+", icon: "Users" },
+              { label: "Event Tahunan", value: "30+", icon: "Calendar" },
+            ]).map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
@@ -219,7 +202,7 @@ export default function Home() {
                 <Card className="border-none shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
                   <CardContent className="p-6 text-center">
                     <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <stat.icon className="w-7 h-7 text-primary" />
+                      <IconComponent name={stat.icon} className="w-7 h-7 text-primary" />
                     </div>
                     <div className="text-3xl sm:text-4xl font-bold text-foreground mb-1">{stat.value}</div>
                     <div className="text-muted-foreground text-sm">{stat.label}</div>
@@ -251,7 +234,12 @@ export default function Home() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+            {(features.length > 0 ? features : [
+              { title: "Database Hukum", description: "Repositori digital UU KM/KBM se-Jawa Timur yang dapat difilter berdasarkan kampus.", href: "/database-hukum", color: "from-blue-500 to-indigo-600", icon: "Scale" },
+              { title: "Event Management", description: "Sistem pendaftaran Muswil/Rakorwil terintegrasi dengan QR Code sertifikat.", href: "/berita", color: "from-emerald-500 to-teal-600", icon: "Calendar" },
+              { title: "Aspirasi Mahasiswa", description: "Formulir aduan dan aspirasi publik yang masuk ke dashboard monitoring.", href: "/kontak", color: "from-orange-500 to-red-500", icon: "MessageSquare" },
+              { title: "Member Directory", description: "Mapping persebaran DPM/BPM dari berbagai universitas di Jawa Timur.", href: "/database-hukum", color: "from-violet-500 to-purple-600", icon: "Users" },
+            ]).map((feature, index) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -263,7 +251,7 @@ export default function Home() {
                   <Card className="h-full border-none shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden">
                     <CardContent className="p-6">
                       <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                        <feature.icon className="w-7 h-7 text-white" />
+                        <IconComponent name={feature.icon} className="w-7 h-7 text-white" />
                       </div>
                       <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
                         {feature.title}
@@ -308,7 +296,11 @@ export default function Home() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {newsItems.map((news, index) => (
+            {(newsItems.length > 0 ? newsItems : [
+              { title: "Rakorwil FL2MI Jatim 2025", excerpt: "Rapat koordinasi wilayah untuk memperkuat jaringan legislatif mahasiswa.", date: "15 Jan 2025", category: "Event", image_url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop" },
+              { title: "Workshop Penyusunan Legislasi Kampus", excerpt: "Pelatihan intensif untuk delegasi DPM/BPM dalam menyusun produk hukum.", date: "10 Jan 2025", category: "Pelatihan", image_url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=300&fit=crop" },
+              { title: "Deklarasi Kolaborasi Legislatif", excerpt: "Penandatanganan MoU kerjasama antar lembaga legislatif mahasiswa.", date: "5 Jan 2025", category: "Berita", image_url: "https://images.unsplash.com/photo-1559523161-0fc0d8b38a7a?w=400&h=300&fit=crop" },
+            ]).map((news, index) => (
               <motion.article
                 key={news.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -319,7 +311,7 @@ export default function Home() {
                 <Card className="h-full border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
                   <div className="aspect-[4/3] overflow-hidden">
                     <img
-                      src={news.image}
+                      src={news.image_url || news.image}
                       alt={news.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -327,9 +319,11 @@ export default function Home() {
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        {news.category}
+                        {news.category || "Berita"}
                       </span>
-                      <span className="text-muted-foreground text-xs">{news.date}</span>
+                      <span className="text-muted-foreground text-xs">
+                        {news.created_at ? new Date(news.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : news.date}
+                      </span>
                     </div>
                     <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
                       {news.title}
@@ -364,9 +358,11 @@ export default function Home() {
                 Daftarkan lembaga legislatif kampus Anda dan jadilah bagian dari gerakan demokrasi mahasiswa Jawa Timur yang lebih kuat dan terorganisir.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" variant="secondary" className="h-14 px-8 text-base gap-2 rounded-xl">
-                  <Users className="w-5 h-5" />
-                  Daftar Sekarang
+                <Button size="lg" variant="secondary" className="h-14 px-8 text-base gap-2 rounded-xl" asChild>
+                  <Link href="/register">
+                    <Users className="w-5 h-5" />
+                    Daftar Sekarang
+                  </Link>
                 </Button>
                 <Button size="lg" variant="outline" className="h-14 px-8 text-base gap-2 rounded-xl bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" asChild>
                   <Link href="/kontak">
