@@ -532,7 +532,7 @@ export default function AdminDashboard() {
                             <h3 className="font-semibold line-clamp-2">{item.title}</h3>
                             <div className="mt-auto pt-4 flex gap-2">
                               <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(item, "news")}><Edit className="w-3 h-3 mr-1" /> Edit</Button>
-                              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete("news_articles", item.id)}><Trash2 className="w-3 h-3" /></Button>
+                              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete("news_articles", item.id, item.image_url)}><Trash2 className="w-3 h-3" /></Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -565,7 +565,7 @@ export default function AdminDashboard() {
                                   <div className="flex items-center justify-end gap-2">
                                     <Button size="icon" variant="ghost" asChild><a href={doc.file_url} target="_blank"><Eye className="w-4 h-4" /></a></Button>
                                     <Button size="icon" variant="ghost" onClick={() => openEditDialog(doc, "docs")}><Edit className="w-4 h-4" /></Button>
-                                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete("documents", doc.id)}><Trash2 className="w-4 h-4" /></Button>
+                                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete("documents", doc.id, doc.file_url)}><Trash2 className="w-4 h-4" /></Button>
                                   </div>
                                 </td>
                               </tr>
@@ -587,7 +587,7 @@ export default function AdminDashboard() {
                            <img src={item.image_url} className="w-full h-full object-cover" />
                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                              <Button size="icon" variant="secondary" className="h-8 w-8" onClick={() => openEditDialog(item, "gallery")}><Edit className="w-4 h-4" /></Button>
-                             <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDelete("gallery", item.id)}><Trash2 className="w-4 h-4" /></Button>
+                             <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDelete("gallery", item.id, item.image_url)}><Trash2 className="w-4 h-4" /></Button>
                            </div>
                          </div>
                        ))}
