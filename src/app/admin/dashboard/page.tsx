@@ -67,7 +67,9 @@ export default function AdminDashboard() {
 
   // Form States
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [deletingItem, setDeletingItem] = useState<{table: string, id: string, fileUrl?: string} | null>(null);
   const [formData, setFormData] = useState<any>({});
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
