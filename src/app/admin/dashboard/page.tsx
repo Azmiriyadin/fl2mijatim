@@ -648,8 +648,34 @@ export default function AdminDashboard() {
                   <Input value={formData.category || ''} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Nasional, Regional, Event..." />
                 </div>
                 <div className="space-y-2">
-                  <Label>URL Gambar</Label>
-                  <Input value={formData.image_url || ''} onChange={e => setFormData({...formData, image_url: e.target.value})} placeholder="https://..." />
+                  <Label>Gambar Berita</Label>
+                  <div className="flex flex-col gap-4">
+                    {formData.image_url && !selectedFile && (
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-muted">
+                        <img src={formData.image_url} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                          <p className="text-white text-xs">Gambar Saat Ini</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid w-full items-center gap-1.5">
+                      <Label htmlFor="news-image" className="cursor-pointer">
+                        <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-colors">
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {selectedFile ? selectedFile.name : 'Klik untuk upload gambar (Max 5MB)'}
+                          </span>
+                        </div>
+                      </Label>
+                      <Input 
+                        id="news-image" 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={e => setSelectedFile(e.target.files?.[0] || null)}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Konten Berita</Label>
