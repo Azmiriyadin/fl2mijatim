@@ -770,6 +770,107 @@ export default function AdminDashboard() {
               </>
             )}
 
+            {formData.contentType === 'events' && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Judul Kegiatan</Label>
+                    <Input value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Tipe Konten</Label>
+                    <Select value={formData.type || 'Event'} onValueChange={val => setFormData({...formData, type: val})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Event">Event</SelectItem>
+                        <SelectItem value="Berita">Berita</SelectItem>
+                        <SelectItem value="Pengumuman">Pengumuman</SelectItem>
+                        <SelectItem value="Press release">Press Release</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Tanggal</Label>
+                    <Input type="date" value={formData.date ? new Date(formData.date).toISOString().split('T')[0] : ''} onChange={e => setFormData({...formData, date: e.target.value})} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Waktu (Contoh: 08:00 - 17:00 WIB)</Label>
+                    <Input value={formData.time_range || ''} onChange={e => setFormData({...formData, time_range: e.target.value})} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Lokasi</Label>
+                    <Input value={formData.location || ''} onChange={e => setFormData({...formData, location: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Kuota / Peserta</Label>
+                    <Input type="number" value={formData.quota || ''} onChange={e => setFormData({...formData, quota: parseInt(e.target.value)})} />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Link Pendaftaran / Action</Label>
+                  <Input value={formData.registration_link || ''} onChange={e => setFormData({...formData, registration_link: e.target.value})} placeholder="https://..." />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={formData.status || 'Pendaftaran Dibuka'} onValueChange={val => setFormData({...formData, status: val})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pendaftaran Dibuka">Pendaftaran Dibuka</SelectItem>
+                      <SelectItem value="Segera Hadir">Segera Hadir</SelectItem>
+                      <SelectItem value="Selesai">Selesai</SelectItem>
+                      <SelectItem value="Dibatalkan">Dibatalkan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Gambar Banner</Label>
+                  <div className="flex flex-col gap-4">
+                    {formData.image_url && !selectedFile && (
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-muted">
+                        <img src={formData.image_url} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="grid w-full items-center gap-1.5">
+                      <Label htmlFor="event-image" className="cursor-pointer">
+                        <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-colors">
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {selectedFile ? selectedFile.name : 'Pilih Banner Kegiatan'}
+                          </span>
+                        </div>
+                      </Label>
+                      <Input 
+                        id="event-image" 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={e => setSelectedFile(e.target.files?.[0] || null)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Ringkasan Singkat</Label>
+                  <Input value={formData.excerpt || ''} onChange={e => setFormData({...formData, excerpt: e.target.value})} placeholder="Deskripsi pendek untuk kartu..." />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Konten Lengkap</Label>
+                  <Textarea className="h-32" value={formData.content || ''} onChange={e => setFormData({...formData, content: e.target.value})} />
+                </div>
+              </>
+            )}
+
             {formData.contentType === 'news' && (
               <>
                 <div className="space-y-2">
