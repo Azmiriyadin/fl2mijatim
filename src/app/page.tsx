@@ -302,7 +302,7 @@ export default function Home() {
               { title: "Deklarasi Kolaborasi Legislatif", excerpt: "Penandatanganan MoU kerjasama antar lembaga legislatif mahasiswa.", date: "5 Jan 2025", category: "Berita", image_url: "https://images.unsplash.com/photo-1559523161-0fc0d8b38a7a?w=400&h=300&fit=crop" },
             ]).map((news, index) => (
               <motion.article
-                key={news.title}
+                key={news.id || `news-${index}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
