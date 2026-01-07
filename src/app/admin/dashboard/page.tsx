@@ -330,6 +330,14 @@ export default function AdminDashboard() {
             Content Manager
           </Button>
           <Button 
+            variant={activeTab === "activities" ? "secondary" : "ghost"} 
+            className="w-full justify-start gap-3 h-11"
+            onClick={() => setActiveTab("activities")}
+          >
+            <Calendar className="w-4 h-4" />
+            Kegiatan & Informasi
+          </Button>
+          <Button 
             variant={activeTab === "logs" ? "secondary" : "ghost"} 
             className="w-full justify-start gap-3 h-11"
             onClick={() => setActiveTab("logs")}
