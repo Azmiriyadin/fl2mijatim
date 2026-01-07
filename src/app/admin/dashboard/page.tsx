@@ -177,37 +177,59 @@ export default function AdminDashboard() {
     
     if (!table) return;
 
-    // Remove contentType from data before sending to DB
-    const { contentType, ...dbData } = formData;
-    
-    let res;
-    if (editingItem) {
-      res = await supabase.from(table).update(dbData).eq("id", editingItem.id);
-    } else {
-      res = await supabase.from(table).insert(dbData);
-    }
+    setIsUploading(true);
+    try {
+      // Remove contentType from data before sending to DB
+      const { contentType, ...dbData } = formData;
+      
+      // Handle File Upload if selected
+      if (selectedFile) {
+        const bucket = contentType === "news" ? "news" : contentType === "docs" ? "documents" : "gallery";
+        const publicUrl = await handleFileUpload(selectedFile, bucket);
+        
+        if (contentType === "news" || contentType === "gallery") {
+          dbData.image_url = publicUrl;
+        } else if (contentType === "docs") {
+          dbData.file_url = publicUrl;
+        }
+      }
 
-    if (res.error) {
-      toast.error("Gagal menyimpan data: " + res.error.message);
-    } else {
-      toast.success("Data berhasil disimpan");
-      logAction(editingItem ? "Update Data" : "Tambah Data", `Tabel: ${table}`);
-      setIsDialogOpen(false);
-      setEditingItem(null);
-      setFormData({});
-      fetchAllData();
+      let res;
+      if (editingItem) {
+        res = await supabase.from(table).update(dbData).eq("id", editingItem.id);
+      } else {
+        res = await supabase.from(table).insert(dbData);
+      }
+
+      if (res.error) {
+        toast.error("Gagal menyimpan data: " + res.error.message);
+      } else {
+        toast.success("Data berhasil disimpan");
+        logAction(editingItem ? "Update Data" : "Tambah Data", `Tabel: ${table}`);
+        setIsDialogOpen(false);
+        setEditingItem(null);
+        setFormData({});
+        setSelectedFile(null);
+        fetchAllData();
+      }
+    } catch (error: any) {
+      toast.error("Error: " + error.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const openAddDialog = (type: string) => {
     setEditingItem(null);
     setFormData({ contentType: type });
+    setSelectedFile(null);
     setIsDialogOpen(true);
   };
 
   const openEditDialog = (item: any, type: string) => {
     setEditingItem(item);
     setFormData({ ...item, contentType: type });
+    setSelectedFile(null);
     setIsDialogOpen(true);
   };
 
