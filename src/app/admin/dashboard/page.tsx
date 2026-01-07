@@ -137,6 +137,11 @@ export default function AdminDashboard() {
     setGallery(data || []);
   };
 
+  const fetchEvents = async () => {
+    const { data } = await supabase.from("events").select("*").order("date", { ascending: false });
+    setEvents(data || []);
+  };
+
   const fetchLogs = async () => {
     const { data } = await supabase.from("system_logs").select("*").order("created_at", { ascending: false }).limit(20);
     setLogs(data || []);
