@@ -22,7 +22,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Navbar } from "@/components/Navbar";
-const BadgeComponent = Badge;
 import { Footer } from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 
