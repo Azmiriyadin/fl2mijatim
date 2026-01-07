@@ -110,6 +110,7 @@ export default function AdminDashboard() {
       fetchNews(),
       fetchDocs(),
       fetchGallery(),
+      fetchEvents(),
       fetchLogs(),
       fetchUniversities()
     ]);
