@@ -319,14 +319,14 @@ export default function Home() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute top-4 left-4">
-                        <Badge className={
-                          activity.type === 'Event' ? 'bg-blue-500' : 
-                          activity.type === 'Berita' ? 'bg-emerald-500' : 
-                          activity.type === 'Pengumuman' ? 'bg-amber-500' : 'bg-purple-500'
-                        }>
-                          {activity.type}
-                        </Badge>
-                      </div>
+                          <span className={`inline-flex items-center justify-center rounded-md border px-2.5 py-0.5 text-xs font-semibold border-transparent text-white ${
+                            activity.type === 'Event' ? 'bg-blue-500' : 
+                            activity.type === 'Berita' ? 'bg-emerald-500' : 
+                            activity.type === 'Pengumuman' ? 'bg-amber-500' : 'bg-purple-500'
+                          }`}>
+                            {activity.type}
+                          </span>
+                        </div>
                       {activity.quota && (
                         <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold border border-white/20">
                           {activity.quota} Peserta
