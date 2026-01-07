@@ -332,75 +332,87 @@ export default function DatabaseHukumPage() {
                 </CardContent>
               </Card>
 
-              <div className="mb-6 flex items-center justify-between">
-                <p className="text-muted-foreground">
-                  Menampilkan <span className="font-medium text-foreground">{filteredDocuments.length}</span> dokumen
-                </p>
-              </div>
+                <div className="mb-6 flex items-center justify-between">
+                  <p className="text-muted-foreground">
+                    Menampilkan <span className="font-medium text-foreground">{filteredDocuments.length}</span> dokumen
+                  </p>
+                </div>
 
-              <div className="grid gap-4">
-                {filteredDocuments.map((doc, index) => (
-                  <motion.div
-                    key={doc.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
-                      <CardContent className="p-6">
-                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <FileText className="w-6 h-6 text-primary" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-lg mb-1 hover:text-primary transition-colors cursor-pointer">
-                                {doc.title}
-                              </h3>
-                              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                                <span className="inline-flex items-center gap-1">
-                                  <Building2 className="w-4 h-4" />
-                                  {doc.university}
-                                </span>
-                                <span className="inline-flex items-center gap-1">
-                                  <Calendar className="w-4 h-4" />
-                                  {doc.year}
-                                </span>
-                                <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                                  {doc.type}
-                                </span>
+                <div className="grid gap-4">
+                  {loading ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                      <p>Memuat dokumen...</p>
+                    </div>
+                  ) : filteredDocuments.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <FileText className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                      <p>Tidak ada dokumen yang ditemukan</p>
+                    </div>
+                  ) : (
+                    filteredDocuments.map((doc, index) => (
+                      <motion.div
+                        key={doc.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                          <CardContent className="p-6">
+                            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                              <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <FileText className="w-6 h-6 text-primary" />
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold text-lg mb-1 hover:text-primary transition-colors cursor-pointer" onClick={() => handleViewFile(doc.file_url)}>
+                                    {doc.title}
+                                  </h3>
+                                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                                    <span className="inline-flex items-center gap-1">
+                                      <Building2 className="w-4 h-4" />
+                                      {doc.university || 'FL2MI Jatim'}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1">
+                                      <Calendar className="w-4 h-4" />
+                                      {doc.year || '-'}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                                      {doc.type}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-6">
+                                <div className="hidden sm:flex items-center gap-6 text-sm text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Eye className="w-4 h-4" />
+                                    {doc.views || 0}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Download className="w-4 h-4" />
+                                    {doc.downloads || 0}
+                                  </span>
+                                  <span>{doc.fileSize || 'PDF'}</span>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button variant="outline" size="sm" className="gap-1" onClick={() => handleViewFile(doc.file_url)}>
+                                    <Eye className="w-4 h-4" />
+                                    Lihat
+                                  </Button>
+                                  <Button size="sm" className="gap-1" onClick={() => handleViewFile(doc.file_url)}>
+                                    <Download className="w-4 h-4" />
+                                    Unduh
+                                  </Button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-6">
-                            <div className="hidden sm:flex items-center gap-6 text-sm text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-4 h-4" />
-                                {doc.views}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Download className="w-4 h-4" />
-                                {doc.downloads}
-                              </span>
-                              <span>{doc.fileSize}</span>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" className="gap-1">
-                                <Eye className="w-4 h-4" />
-                                Lihat
-                              </Button>
-                              <Button size="sm" className="gap-1">
-                                <Download className="w-4 h-4" />
-                                Unduh
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
             </>
           )}
 
