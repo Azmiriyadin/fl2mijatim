@@ -8,6 +8,7 @@ import {
   Target,
   Eye,
   Users,
+  User,
   Award,
   MapPin,
   Calendar,
