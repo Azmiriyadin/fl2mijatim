@@ -625,6 +625,74 @@ export default function AdminDashboard() {
               </motion.div>
             )}
 
+            {/* ACTIVITIES TAB */}
+            {activeTab === "activities" && (
+              <motion.div key="activities" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-2xl font-bold">Kegiatan & Informasi</h1>
+                    <p className="text-muted-foreground">Kelola event, berita, pengumuman, dan press release.</p>
+                  </div>
+                  <Button className="gap-2" onClick={() => openAddDialog("events")}>
+                    <Plus className="w-4 h-4" /> Tambah Kegiatan
+                  </Button>
+                </div>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {events.map(item => (
+                    <Card key={item.id} className="overflow-hidden group flex flex-col">
+                      <div className="aspect-video bg-muted relative">
+                        {item.image_url ? (
+                          <img src={item.image_url} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                            <ImageIcon className="w-8 h-8 opacity-20" />
+                          </div>
+                        )}
+                        <div className="absolute top-2 left-2">
+                          <Badge className={
+                            item.type === 'Event' ? 'bg-blue-500' : 
+                            item.type === 'Berita' ? 'bg-emerald-500' : 
+                            item.type === 'Pengumuman' ? 'bg-amber-500' : 'bg-purple-500'
+                          }>
+                            {item.type}
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-4 flex-1 flex flex-col">
+                        <h3 className="font-semibold line-clamp-2 mb-2">{item.title}</h3>
+                        <div className="space-y-1 mb-4">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </div>
+                          {item.location && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <MapPin className="w-3 h-3" />
+                              {item.location}
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-auto pt-4 flex gap-2 border-t">
+                          <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(item, "events")}><Edit className="w-3 h-3 mr-1" /> Edit</Button>
+                          <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete("events", item.id, item.image_url)}><Trash2 className="w-3 h-3" /></Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {events.length === 0 && (
+                    <div className="col-span-full py-20 text-center">
+                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Calendar className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="font-semibold">Belum Ada Kegiatan</h3>
+                      <p className="text-muted-foreground text-sm">Klik tombol "Tambah Kegiatan" untuk mulai.</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
             {/* LOGS TAB */}
             {activeTab === "logs" && (
               <motion.div key="logs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
