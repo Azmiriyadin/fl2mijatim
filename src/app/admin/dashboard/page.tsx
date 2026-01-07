@@ -270,6 +270,11 @@ export default function AdminDashboard() {
     router.push("/login");
   };
 
+  const handleViewFile = (url: string) => {
+    if (!url) return toast.error("File tidak tersedia");
+    window.parent.postMessage({ type: "OPEN_EXTERNAL_URL", data: { url } }, "*");
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
