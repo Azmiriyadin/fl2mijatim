@@ -709,8 +709,24 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>URL File (PDF)</Label>
-                  <Input value={formData.file_url || ''} onChange={e => setFormData({...formData, file_url: e.target.value})} required placeholder="https://..." />
+                  <Label>File Dokumen (PDF)</Label>
+                  <div className="grid w-full items-center gap-1.5">
+                    <Label htmlFor="doc-file" className="cursor-pointer">
+                      <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-colors">
+                        <FileText className="w-8 h-8 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {selectedFile ? selectedFile.name : formData.file_url ? 'Ganti file PDF' : 'Klik untuk upload PDF'}
+                        </span>
+                      </div>
+                    </Label>
+                    <Input 
+                      id="doc-file" 
+                      type="file" 
+                      className="hidden" 
+                      accept=".pdf"
+                      onChange={e => setSelectedFile(e.target.files?.[0] || null)}
+                    />
+                  </div>
                 </div>
               </>
             )}
@@ -722,8 +738,31 @@ export default function AdminDashboard() {
                   <Input value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} required />
                 </div>
                 <div className="space-y-2">
-                  <Label>URL Gambar</Label>
-                  <Input value={formData.image_url || ''} onChange={e => setFormData({...formData, image_url: e.target.value})} required placeholder="https://..." />
+                  <Label>Upload Foto</Label>
+                  <div className="flex flex-col gap-4">
+                    {formData.image_url && !selectedFile && (
+                      <div className="relative aspect-square w-32 rounded-lg overflow-hidden bg-muted mx-auto">
+                        <img src={formData.image_url} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="grid w-full items-center gap-1.5">
+                      <Label htmlFor="gallery-image" className="cursor-pointer">
+                        <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-colors">
+                          <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {selectedFile ? selectedFile.name : 'Pilih Foto'}
+                          </span>
+                        </div>
+                      </Label>
+                      <Input 
+                        id="gallery-image" 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={e => setSelectedFile(e.target.files?.[0] || null)}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Kategori</Label>
@@ -733,8 +772,10 @@ export default function AdminDashboard() {
             )}
 
             <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Batal</Button>
-              <Button type="submit">Simpan Perubahan</Button>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isUploading}>Batal</Button>
+              <Button type="submit" disabled={isUploading}>
+                {isUploading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menyimpan...</> : 'Simpan Perubahan'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
